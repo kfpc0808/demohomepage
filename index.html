@@ -127,6 +127,8 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 
 .hero-slider { position:relative; margin-top:80px; overflow:hidden; height:480px; }
 .slide { position:absolute; inset:0; opacity:0; transition:opacity 1s ease; display:flex; align-items:center; justify-content:center; }
+/* .slide::after 제거 — 배경 이미지 표시를 위해 삭제 */
+.slide-content { position:relative !important; z-index:1 !important; }
 .slide.active { opacity:1; }
 .slide-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
 .slide-canvas { position:absolute; inset:0; width:100%; height:100%; }
@@ -153,7 +155,7 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 }
 .icon-card:hover { box-shadow:0 8px 32px rgba(37,99,235,0.12); border-color:var(--accent2); transform:translateY(-3px); }
 .icon-card .ic { width:64px; height:64px; background:var(--gray-light); border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center; }
-.icon-card .ic svg { width:32px; height:32px; stroke:var(--gray-dark); fill:none; stroke-width:1.5; }
+.icon-card .ic svg { width:32px; height:32px; stroke:#888; fill:none; stroke-width:1.5; }
 .icon-card span { display:block; font-size:14px; font-weight:600; color:var(--text-main); }
 
 /* INTRO SECTION */
@@ -851,14 +853,14 @@ textarea.form-control { min-height:140px; resize:vertical; }
 .slide-grad-4 { background:linear-gradient(135deg, #0d1117 0%, #1a3a5c 60%, #0ea5e9 100%); }
 
 /* Icon colors */
-.ic-blue { background:linear-gradient(135deg, #dbeafe, #eff6ff) !important; }
-.ic-blue svg { stroke:var(--accent) !important; }
-.ic-green { background:linear-gradient(135deg, #dcfce7, #f0fdf4) !important; }
-.ic-green svg { stroke:#16a34a !important; }
-.ic-orange { background:linear-gradient(135deg, #ffedd5, #fff7ed) !important; }
-.ic-orange svg { stroke:#ea580c !important; }
-.ic-purple { background:linear-gradient(135deg, #f3e8ff, #faf5ff) !important; }
-.ic-purple svg { stroke:#9333ea !important; }
+.ic-blue { background:linear-gradient(135deg, #e8e8e8, #f5f5f5) !important; }
+.ic-blue svg { stroke:#999 !important; }
+.ic-green { background:linear-gradient(135deg, #e0e0e0, #f0f0f0) !important; }
+.ic-green svg { stroke:#999 !important; }
+.ic-orange { background:linear-gradient(135deg, #e5e5e5, #f2f2f2) !important; }
+.ic-orange svg { stroke:#999 !important; }
+.ic-purple { background:linear-gradient(135deg, #e3e3e3, #f0f0f0) !important; }
+.ic-purple svg { stroke:#999 !important; }
 
 /* Admin dashboard */
 .dash-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:32px; }
@@ -1105,6 +1107,17 @@ img, video, iframe { max-width:100%; height:auto; }
 /* ── Video/images: never overflow ── */
 img, video, iframe { max-width:100%; height:auto; }
 .video-grid iframe { width:100%; }
+
+/* 중요문서(연구노트) 사이드바 강조 */
+.csresearch-blink {
+  font-weight: 700;
+  animation: csrBlink 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes csrBlink {
+  0%,100% { color:#ef4444; text-shadow: 0 0 6px rgba(239,68,68,0.6); }
+  50%      { color:#dc2626; text-shadow: 0 0 12px rgba(220,38,38,0.8); }
+}
 </style>
 </head>
 <body>
@@ -1393,7 +1406,7 @@ img, video, iframe { max-width:100%; height:auto; }
         </div>
       </div>
       <div class="adp-hero-title">
-        ※ 이 팝업은 관리자 페이지에서 설정·편집할 수 있는 홍보 팝업입니다.
+        ※ 이 팝업은 홈페이지의 기능중 하나입니다. 샘플로 만든 것이며, 관리자 페이지에서 설정·편집할 수 있습니다.(아래는 기능 설명임)
       </div>
     </div>
 
@@ -2219,33 +2232,30 @@ function renderSlider() {
   
   dots.innerHTML = activeSlides.map((_,i) => `<div class="slider-dot${i===0?' active':''}" onclick="goToSlide(${i})"></div>`).join('');
   
-  // Start canvas animations
+  // 정적 이미지 배경 적용 (canvas 미사용)
+  const STATIC_IMGS = {
+    neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide1.jpg',  // 딥 블루 뉴럴
+    data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide2.jpg',  // 에메랄드 그린
+    grid:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide3.jpg',  // 딥 퍼플 헥사곤
+    particle: 'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide4.jpg',  // 딥 레드 파티클
+    wave:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide5.jpg',  // 청록 웨이브
+    aurora:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide6.jpg',  // 황금 오로라
+  };
+  canvasAnimators = [];
+  // heroSlider 내부 슬라이드만 정확히 선택
+  const heroEl = document.getElementById('heroSlider');
+  const slideEls = heroEl ? heroEl.querySelectorAll('.slide') : [];
   activeSlides.forEach((slide, i) => {
     const canvas = document.getElementById('canvas_'+i);
-    if(!canvas) return;
-    if(slide.type === 'photo') {
-      // 사진 배경 슬라이드 처리
-      const slideEl = canvas.closest('.slide');
-      if(slideEl) {
-        canvas.style.display = 'none';
-        slideEl.style.backgroundImage = `url('${slide.photoUrl}')`;
-        slideEl.style.backgroundSize = 'cover';
-        slideEl.style.backgroundPosition = 'center';
-        if(!slideEl.querySelector('.photo-overlay')) {
-          const ov = document.createElement('div');
-          ov.className = 'photo-overlay';
-          ov.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,13,26,0.75) 0%,rgba(26,46,90,0.55) 100%);z-index:0;';
-          slideEl.insertBefore(ov, slideEl.querySelector('.slide-content'));
-        }
-      }
-      canvasAnimators[i] = null;
+    if(canvas) canvas.style.display = 'none';
+    const slideEl = slideEls[i];
+    if(slideEl) {
+      const imgUrl = slide.type === 'photo' ? slide.photoUrl : (STATIC_IMGS[slide.type] || STATIC_IMGS.neural);
+      slideEl.style.backgroundImage = 'url(' + imgUrl + ')';
+      slideEl.style.backgroundSize = 'cover';
+      slideEl.style.backgroundPosition = 'center';
     }
-    else if(slide.type === 'neural') canvasAnimators[i] = drawNeural(canvas);
-    else if(slide.type === 'data') canvasAnimators[i] = drawData(canvas);
-    else if(slide.type === 'grid') canvasAnimators[i] = drawGrid(canvas);
-    else if(slide.type === 'wave') canvasAnimators[i] = drawWave(canvas);
-    else if(slide.type === 'aurora') canvasAnimators[i] = drawAurora(canvas);
-    else canvasAnimators[i] = drawParticle(canvas);
+    canvasAnimators[i] = null;
   });
   
   currentSlide = 0;
@@ -4783,6 +4793,9 @@ function renderAdminSidebar() {
             if(c.id==='imageMgmt') {
               return `<div class="admin-sub-item admin-imgmgmt-item ${c.id===currentAdminSection?'active':''}" onclick="renderAdmin('${c.id}')">🖼️ <span class="imgmgmt-blink">${cLabel}</span></div>`;
             }
+            if(c.id==='csResearch') {
+              return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''}" onclick="adminShowCsResearch()">▶ <span class="csresearch-blink">${cLabel}</span></div>`;
+            }
             return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''} ${isEdChild?'admin-editable-child':''}" onclick="${c.id==='csResearch'?'adminShowCsResearch()':"renderAdmin('" + c.id + "')"}">${isEdChild?'▶ ':''}${cLabel}</div>`;
           }).join('')}
         </div>
@@ -6217,17 +6230,26 @@ function confirmCheckout() {
     // 데모 인트로 팝업 (최초 표시)
     setTimeout(function() { openIntroPopup(); }, 350);
 
+    // 관리자 팝업창에서 저장 시 즉시 반영 (1초 폴링)
+    let _lastHeroSlides = JSON.stringify(getSavedConfig().heroSlides);
+    setInterval(function() {
+      const cur = JSON.stringify(getSavedConfig().heroSlides);
+      if(cur !== _lastHeroSlides) {
+        _lastHeroSlides = cur;
+        renderSlider();
+      }
+    }, 800);
+
     // 다른 탭(관리자)에서 localStorage 변경 시 자동 반영
     window.addEventListener('storage', function(e) {
-      if(e.key === 'kfpc_config') renderMain();
+      if(e.key === 'kfpc_config') { renderMain(); setTimeout(renderSlider, 200); }
     });
     // BroadcastChannel을 통한 즉시 반영 (동일 origin 탭 간)
     try {
       const bc = new BroadcastChannel('kfpc_sync');
       bc.onmessage = function(e) {
         if(e.data && e.data.type === 'config_updated') {
-          renderMain();
-          setTimeout(function(){ try{renderSlider();}catch(e){} }, 150);
+          renderMain(); setTimeout(renderSlider, 200);
         }
       };
     } catch(e) {}
