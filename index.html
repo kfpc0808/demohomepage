@@ -698,7 +698,7 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 /* ===== ADMIN PAGE ===== */
 .admin-layout { display:flex; min-height:100vh; }
 .admin-sidebar {
-  width:220px; background:var(--admin-sidebar); min-height:100vh;
+  width:220px; background:var(--admin-sidebar); height:100vh;
   position:fixed; top:0; left:0; overflow-y:auto; z-index:100;
 }
 .admin-logo {
@@ -714,18 +714,20 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
   border-left:3px solid transparent;
 }
 
-/* ── 수정가능 메뉴 깜빡이기 ── */
+/* ── 수정가능 메뉴 깜빡이기 (1회 깜빡 후 2초 정지) ── */
 @keyframes adminBlink {
-  0%,49%  { opacity:1; }
-  50%,100% { opacity:0.35; }
+  0%   { opacity:1; }
+  10%  { opacity:0.4; }
+  20%  { opacity:1; }
+  100% { opacity:1; }
 }
 .admin-editable-parent {
-  color:#fbbf24 !important; font-weight:800 !important;
-  animation:adminBlink 2s step-end infinite;
+  color:#e8c97a !important; font-weight:700 !important;
+  animation:adminBlink 3s ease-in-out infinite;
 }
 .admin-editable-child {
-  color:#86efac !important; font-weight:700 !important;
-  animation:adminBlink 2s step-end infinite;
+  color:#93c5fd !important; font-weight:600 !important;
+  animation:adminBlink 3s ease-in-out infinite;
 }
 /* 활성(현재 선택) 상태는 깜빡이지 않음 */
 .admin-sub-item.active.admin-editable-child,
@@ -1166,7 +1168,7 @@ img, video, iframe { max-width:100%; height:auto; }
       <div class="intro-card">
         <div class="intro-img">
           <div class="intro-img-bg slide-grad-2" id="introImgBg" style="background:none;padding:0;border-radius:0;overflow:hidden;">
-            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=85"
+            <img id="introCompanyImg" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=900&q=85"
                  alt="회사 빌딩"
                  style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />
           </div>
@@ -1789,6 +1791,17 @@ const DEFAULT_CONFIG = {
     title: '주식회사 \'KFPC\' 및 부설 \'금융기술 연구소\' 를 소개합니다.',
     body: '주식회사 KFPC는 혁신적인 금융 컨설팅 및 교육 솔루션을 제공하는 선도적인 금융 전문 기업입니다.\n\n저희는 창립 이래 최고의 품질과 지속 가능한 혁신을 핵심 가치로 삼아, 국내 금융 컨설턴트 및 파이낸셜 어드바이저 산업 발전에 기여하고 고객의 기대를 뛰어넘는 제품과 솔루션을 제공하기 위해 끊임없이 노력하고 있습니다.\n\n단순한 금융 서비스를 넘어, 저희는 미래 금융 산업의 변화를 주도할 기술을 확보하는 것이 기업의 지속 가능한 성장을 위한 필수 조건임을 인식하고 있습니다.'
   },
+  companyAbout: {
+    title: "'(주)KFPC' 및 부설 '금융기술 연구소' 를 소개합니다.",
+    content: "'KFPC' 및 부설 '금융기술 연구소' 를 소개합니다.\n\n주식회사 KFPC는 혁신적인 금융 컨설팅 및 교육 솔루션을 제공하는 선도적인 금융 전문 기업입니다.\n저희는 창립 이래 최고의 품질과 지속 가능한 혁신을 핵심 가치로 삼아, 국내 금융 컨설턴트 및 파이낸셜 어드바이저 산업 발전에 기여하고 고객의 기대를 뛰어넘는 제품과 솔루션을 제공하기 위해 끊임없이 노력하고 있습니다.",
+    closing: '(주)KFPC 대표이사 드림'
+  },
+  ceoGreeting: {
+    title: '미래 산업의 정점, (주)KFPC가 만듭니다.',
+    content: "미래 산업의 정점, KFPC가 만납니다.\n\n존경하는 고객 및 파트너 여러분, 저희 KFPC를 가득 채워낸!\n\n주식회사 KFPC는 미래 산업의 성장에 성장 솔루션(Solutions for the Future)이라는 비전 아래, 금융 산업을 선도하기 위해 끊임없이 달려왔습니다.\n급변하는 4차 산업화의 시대에서, 저희는 성장능력 신뢰성을 기업이 핵심 가치로 삼고, 국소 여러분과 스마트 팩토리와 자동화 시스템에 탁월한 지능형 솔루션을 제공하고 있습니다.",
+    closing: '(주)KFPC 대표이사 드림'
+  },
+  adminMenuLabels: {},
   footer: {
     company: '(주)KFPC / 부설 금융기술연구소',
     address: '서울특별시 강남구 역삼동 테헤란로 123 (역삼동, KFPC 타워)',
@@ -2420,6 +2433,11 @@ function renderIcons() {
 function renderIntro() {
   document.getElementById('introTitle').textContent = config.intro.title;
   document.getElementById('introBody').innerHTML = (config.intro.body||'').replace(/\n/g,'<br>');
+  // 저장된 회사소개 이미지 적용
+  if(config.companyImg) {
+    const img = document.getElementById('introCompanyImg');
+    if(img) img.src = config.companyImg;
+  }
 }
 
 function renderNews() {
@@ -2788,7 +2806,8 @@ function getSubPagePopupContent(parent, pageName) {
         <div class="info-popup-highlight">
           연구노트, 견적서, 계약서, 근로계약서, 제휴협약서 등 <strong>중요 문서를 PDF로 관리</strong>할 수 있습니다.<br><br>
           ⏰ <strong>시점확인 스탬프</strong>: 해당 문서가 특정 시점에 존재했음을 증명하는 법적 안전장치로, PDF에 타임스탬프를 자동으로 찍어 드립니다.<br><br>
-          🔒 <strong>암호화 저장</strong>: 중요 문서를 암호화하여 안전하게 보관하고, 승인된 사용자만 열람할 수 있습니다.<br><br>
+          ✏️ <strong>시점확인 프로세스</strong>: 중요문서 pdf(연구노트 등..)를 업로드하면 실시간 '한국전자인증'을 통해 시점확인 스탬프가 찍히고 해당문서의 <b>암호화 파일</b>이 생성되어 동시에 '관리자페이지'로 다운됩니다.<a id="timestampLink" href="https://raw.githubusercontent.com/kfpc0808/demohomepage/main/timestamp.png" target="_blank" style="display:inline-block;margin-left:4px;padding:2px 10px;background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;border-radius:12px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;">[확인하기]</a><br><br>
+          🔒 <strong>암호화 File 저장</strong>: 중요 문서를 암호화 File로 변환하여 안전하게 보관하여 법적안전장치를 확보하게 되며 승인된 사용자만 열람할 수 있습니다.<br><br>
           이 기능은 <strong>관리자 페이지에서 구매·활성화</strong>하여 사용할 수 있습니다.
         </div>
         <div class="info-popup-tags">
@@ -3531,6 +3550,14 @@ function renderCeoPage() {
   config = getSavedConfig();
   const cfg = config;
   const company = (cfg.footer && cfg.footer.company) ? cfg.footer.company : '(주)KFPC';
+  // 관리자에서 저장한 값 우선 사용
+  const ceoCfg = cfg.ceoGreeting || {};
+  const heroMsg = ceoCfg.title || '고객 여러분의 성공적인 비즈니스 파트너가 될것을 다짐합니다.';
+  const bodyText = ceoCfg.content || "존경하는 고객 및 파트너 여러분,\n\n저희 " + company + "는 미래 산업의 성장에 성장 솔루션(Solutions for the Future)이라는 비전 아래, 금융 산업을 선도하기 위해 끊임없이 달려왔습니다.\n급변하는 4차 산업화의 시대에서, 저희는 성장능력 신뢰성을 기업이 핵심 가치로 삼고, 국소 여러분과 스마트 팩토리와 자동화 시스템에 탁월한 지능형 솔루션을 제공하고 있습니다.";
+  const closing = ceoCfg.closing || company + ' 대표이사 드림';
+  // 본문을 단락으로 분리
+  const paras = bodyText.split('\n').filter(l => l.trim());
+  const parasHTML = paras.map(p => `<p>${p}</p>`).join('');
   return `
     <style>
       .ceo-hero-msg { font-size:22px; font-weight:800; color:#1a2e5a; margin-bottom:36px; padding-bottom:18px; border-bottom:3px solid #1a2e5a; line-height:1.5; }
@@ -3545,17 +3572,11 @@ function renderCeoPage() {
       .ceo-footer-info p { font-size:13px; color:#555; line-height:2.0; margin:0; }
     </style>
     <div style="padding:40px 0;">
-      <div class="ceo-hero-msg">고객 여러분의 성공적인 비즈니스 파트너가 될것을 다짐합니다.</div>
+      <div class="ceo-hero-msg">${heroMsg}</div>
       <div class="ceo-grid">
         <div class="ceo-text">
-          <p>존경하는 고객 및 파트너 여러분,<br>그리고 ${company} 가족 여러분!</p>
-          <p>${company} 대표이사입니다.</p>
-          <p>저희 ${company}는 '미래 산업의 첨단에 서는 솔루션'이라는 비전 아래, 초정밀 산업용 센서 및 제어 시스템 분야를 선도하기 위해 끊임없이 달려왔습니다. 급변하는 4차 산업혁명 시대에서, 저희는 창의도와 신뢰성을 기업의 핵심 가치로 삼고, 고객 여러분의 스마트 팩토리와 자동화 시스템에 최적화된 지능형 솔루션을 제공하고 있습니다.</p>
-          <p>특히, 저희는 기술 혁신이 기업 성장의 핵심 동력임을 믿습니다. 기업부설 미래기술 연구소는 인공지능과 센서 융합 기술에 대한 진속적인 연구개발을 통해 제품의 지능화를 가속하고 있으며, 이러한 혁신의 결과가 곧 고객 여러분의 경쟁력 강화로 이어질 것이라 확신합니다.</p>
-          <p>${company}는 현재에 안주하지 않고, 도전과 창조의 정신으로 기술의 한계를 뛰어넘어 더 나은 미래를 함께 만들어 나갈 것을 약속드립니다.</p>
-          <p>언제나 변함없는 성원과 관심을 보내주시는 모든 분께 깊이 감사드리며, 고객 여러분의 성공적인 비즈니스 파트너가 될 것을 다짐합니다.</p>
-          <p>감사합니다.</p>
-          <div class="ceo-sign">${company} 대표이사 드림</div>
+          ${parasHTML}
+          <div class="ceo-sign">${closing}</div>
         </div>
         <div class="ceo-img-wrap">
           <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80" alt="CEO 사진" />
@@ -3796,6 +3817,12 @@ function toggleEsgAccordion(btn) {
 
 // ===== SPECIAL PAGE RENDERERS =====
 function renderCompanyPage() {
+  config = getSavedConfig();
+  const caCfg = config.companyAbout || {};
+  const caTitle = caCfg.title || "'(주)KFPC' 및 부설 '금융기술 연구소' 를 소개합니다.";
+  const caBody  = caCfg.content || "주식회사 KFPC는 혁신적인 금융 컨설팅 및 교육 솔루션을 제공하는 선도적인 금융 전문 기업입니다.\n\n저희는 창립 이래 최고의 품질과 지속 가능한 혁신을 핵심 가치로 삼아, 국내 금융 컨설턴트 및 파이낸셜 어드바이저 산업 발전에 기여하고 고객의 기대를 뛰어넘는 제품과 솔루션을 제공하기 위해 끊임없이 노력하고 있습니다.\n\n단순한 금융 서비스를 넘어, 저희는 미래 금융 산업의 변화를 주도할 기술을 확보하는 것이 기업의 지속 가능한 성장을 위한 필수 조건임을 인식하고 있습니다.";
+  const caClosing = caCfg.closing || '(주)KFPC 대표이사 드림';
+  const caParas = caBody.split('\n').filter(l => l.trim()).map(p => `<p>${p}</p>`).join('');
   return `
     <style>
       .company-section { margin-bottom: 60px; }
@@ -3828,14 +3855,9 @@ function renderCompanyPage() {
     <div style="padding:40px 0;">
       <div class="company-greeting">
         <div class="company-greeting-text">
-          <h3>인사말</h3>
-          <p>주식회사 KFPC는 혁신적인 금융 컨설팅 및 교육 솔루션을 제공하는 선도적인 금융 전문 기업입니다.</p>
-          <p>저희는 창립 이래 최고의 품질과 지속 가능한 혁신을 핵심 가치로 삼아, 국내 금융 컨설턴트 및 파이낸셜 어드바이저 산업 발전에 기여하고 고객의 기대를 뛰어넘는 제품과 솔루션을 제공하기 위해 끊임없이 노력하고 있습니다.</p>
-          <p>단순한 금융 서비스를 넘어, 저희는 미래 금융 산업의 변화를 주도할 기술을 확보하는 것이 기업의 지속 가능한 성장을 위한 필수 주건임을 인식하고 있습니다.</p>
-          <p>또한 이러한 비전 아래 설립된 기업부설 금융기술 연구소는 KFPC의 핵심 능력과 같은 곳입니다. 당 연구소는 인공지능 기반의 센서 융합 기술 및 초저전력 통신 솔루션 분야에 지속적인 투자를 진행하여, 원천 기술 확보와 제품 경쟁력 강화를 목표로 합니다.</p>
-          <p>주식회사 KFPC는 미래기술 연구소를 통해 제조 역량과 기술 혁신 역량을 결합하여, 고객에게 더욱 정밀하고, 지능화된 솔루션을 제공하는 미래형 제조업체로 도약하고 있습니다.</p>
-          <p>앞으로도 고객과, 국가에 큰 도움이 될 수 있도록 정진하도록 하겠습니다.</p>
-          <div class="greeting-sign">주식회사 KFPC 대표이사 드림</div>
+          <h3>${caTitle}</h3>
+          ${caParas}
+          <div class="greeting-sign">${caClosing}</div>
         </div>
         <div class="company-greeting-img">
           <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" alt="회사 소개 이미지" />
@@ -4576,25 +4598,28 @@ function renderAdminSidebar() {
     'csNotice','csInquiryMember','csInquiryNon','csResearch','csInternal'
   ]);
 
+  const labels = (config.adminMenuLabels) || {};
   const sidebar = document.getElementById('adminSidebar');
-  sidebar.innerHTML = ADMIN_MENUS.map(m => {
+  sidebar.innerHTML = ADMIN_MENUS.map((m, i) => {
     const isEdParent = EDITABLE_PARENT_IDS.has(m.id);
+    const pLabel = labels['p_' + i] || m.label;
     if(m.children) {
       const isOpen = m.children.some(c => c.id === currentAdminSection) || m.id === currentAdminSection;
       return `
         <div class="admin-parent ${isOpen?'open':''} ${isEdParent?'admin-editable-parent':''}" onclick="toggleAdminMenu('${m.id}', this)">
-          ${isEdParent?'✏️ ':''}${m.label}
+          ${isEdParent?'✏️ ':''}${pLabel}
           <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div class="admin-sub-menu ${isOpen?'open':''}" id="sub_${m.id}">
-          ${m.children.map(c => {
+          ${m.children.map((c, j) => {
             const isEdChild = EDITABLE_CHILD_IDS.has(c.id);
-            return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''} ${isEdChild?'admin-editable-child':''}" onclick="renderAdmin('${c.id}')">${isEdChild?'▶ ':''}${c.label}</div>`;
+            const cLabel = labels['c_' + i + '_' + j] || c.label;
+            return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''} ${isEdChild?'admin-editable-child':''}" onclick="renderAdmin('${c.id}')">${isEdChild?'▶ ':''}${cLabel}</div>`;
           }).join('')}
         </div>
       `;
     }
-    return `<div class="admin-menu-item ${m.id===currentAdminSection?'active':''}" onclick="renderAdmin('${m.id}')">${m.label}</div>`;
+    return `<div class="admin-menu-item ${m.id===currentAdminSection?'active':''}" onclick="renderAdmin('${m.id}')">${pLabel}</div>`;
   }).join('');
 }
 
@@ -4676,16 +4701,22 @@ function renderAdminContent(section) {
   // ── 소개/CEO 폼 공통 ──
   function greetingForm(title, contentText, closing) {
     const isCeo = title.includes('CEO');
+    const cfgKey = isCeo ? 'ceoGreeting' : 'companyAbout';
+    // config에 저장된 값 우선 사용
+    const saved = config[cfgKey] || {};
+    const subjectText = saved.title || (isCeo ? '미래 산업의 정점, (주)KFPC가 만듭니다.' : "'(주)KFPC' 및 부설 '금융기술 연구소' 를 소개합니다.");
+    const bodyText   = saved.content || contentText;
+    const closingText= saved.closing || closing;
     const regDate = '2025-11-14 16:59:59';
-    const modDate = isCeo ? '2025-12-05 12:30:39' : '2026-02-11 14:01:20';
-    const subjectText = isCeo ? '미래 산업의 정점, (주)KFPC가 만듭니다.' : `주식회사 '(주)KFPC' 및 부설 '금융기술 연구소' 를 소개합니다.`;
+    const modDate = saved._modDate || (isCeo ? '2025-12-05 12:30:39' : '2026-02-11 14:01:20');
+    const saveKey = cfgKey;
     return `
       <h3 style="font-size:18px;font-weight:700;margin-bottom:24px;color:var(--primary);">${title}</h3>
       <div class="admin-form-section">
         <table style="width:100%;border-collapse:collapse;">
           <tr>
             <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;width:130px;text-align:center;border-bottom:1px solid #aad4e8;vertical-align:middle;">제목<span style="color:#e74c3c;">*</span></td>
-            <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);"><input type="text" class="form-control" value="${subjectText}" style="margin:0;"></td>
+            <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);"><input type="text" id="gfTitle" class="form-control" value="${subjectText.replace(/"/g,'&quot;')}" style="margin:0;"></td>
           </tr>
           <tr>
             <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;border-bottom:1px solid #aad4e8;">등록일<span style="color:#e74c3c;">*</span></td>
@@ -4693,22 +4724,22 @@ function renderAdminContent(section) {
           </tr>
           <tr>
             <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;border-bottom:1px solid #aad4e8;">수정일</td>
-            <td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);font-size:14px;color:#444;">${modDate}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);font-size:14px;color:#444;" id="gfModDate">${modDate}</td>
           </tr>
           <tr>
             <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;border-bottom:1px solid #aad4e8;vertical-align:middle;">내용</td>
             <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);">
-              <textarea class="form-control" style="min-height:200px;margin:0;line-height:1.7;">${contentText}</textarea>
+              <textarea id="gfContent" class="form-control" style="min-height:200px;margin:0;line-height:1.7;">${bodyText}</textarea>
             </td>
           </tr>
           <tr>
             <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;">맺음말<span style="color:#e74c3c;">*</span></td>
-            <td style="padding:10px 16px;"><input type="text" class="form-control" value="${closing}" style="margin:0;"></td>
+            <td style="padding:10px 16px;"><input type="text" id="gfClosing" class="form-control" value="${closingText.replace(/"/g,'&quot;')}" style="margin:0;"></td>
           </tr>
         </table>
         <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
-          <button style="padding:12px 28px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">취소</button>
-          <button class="btn-primary-admin" onclick="showToast('✅ 수정 완료')">수정완료</button>
+          <button style="padding:12px 28px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;" onclick="renderAdmin('${saveKey}')">취소</button>
+          <button class="btn-primary-admin" onclick="saveGreetingForm('${saveKey}')">수정완료</button>
         </div>
       </div>
     `;
@@ -4745,17 +4776,54 @@ function renderAdminContent(section) {
     window._menuRows=rows;
 
   } else if(section==='adminMenuName') {
+    const labels = config.adminMenuLabels || {};
+    let rowIdx = 0;
+    const rows = [];
+    ADMIN_MENUS.forEach((m, i) => {
+      const mid = `SM${String(i*10+1).padStart(4,'0')}`;
+      const curLabel = labels[`p_${i}`] || m.label;
+      rows.push(`<tr><td>${mid}</td><td>${m.label}</td><td>${curLabel}</td><td><input type="text" id="aml_${rowIdx}" value="${curLabel}"></td><td><button class="btn-edit" onclick="saveAdminMenuLabel('p',${i},-1,${rowIdx})">수정</button></td></tr>`);
+      rowIdx++;
+      if(m.children) m.children.forEach((c, j) => {
+        const cid = `SM${String(i*10+j+2).padStart(4,'0')}`;
+        const cLabel = labels[`c_${i}_${j}`] || c.label;
+        rows.push(`<tr><td>${cid}</td><td>${curLabel}</td><td>${cLabel}</td><td><input type="text" id="aml_${rowIdx}" value="${cLabel}"></td><td><button class="btn-edit" onclick="saveAdminMenuLabel('c',${i},${j},${rowIdx})">수정</button></td></tr>`);
+        rowIdx++;
+      });
+    });
     content.innerHTML=`<h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">관리자메뉴명칭관리</h3>
       <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th>ID</th><th>대메뉴명</th><th>메뉴명</th><th>변경할메뉴명</th><th>관리</th></tr></thead>
-        <tbody>${ADMIN_MENUS.flatMap((m,i)=>{
-          const rs=[]; const mid=`SM${String(i*10+1).padStart(4,'0')}`;
-          rs.push(`<tr><td>${mid}</td><td>${m.label}</td><td>${m.label}</td><td><input type="text" value="${m.label}"></td><td><button class="btn-edit" onclick="showToast('저장 완료')">수정</button></td></tr>`);
-          if(m.children) m.children.forEach((c,j)=>{ const cid=`SM${String(i*10+j+2).padStart(4,'0')}`; rs.push(`<tr><td>${cid}</td><td>${m.label}</td><td>${c.label}</td><td><input type="text" value="${c.label}"></td><td><button class="btn-edit" onclick="showToast('저장 완료')">수정</button></td></tr>`); });
-          return rs;
-        }).join('')}</tbody></table></div>`;
+        <thead><tr><th>ID</th><th>대메뉴명</th><th>현재메뉴명</th><th>변경할메뉴명</th><th>관리</th></tr></thead>
+        <tbody>${rows.join('')}</tbody></table></div>`;
 
   } else if(section==='imageMgmt') {
+    // 이미지 타입별 후보 이미지 풀
+    const IMG_POOLS = {
+      'mainVisual': [
+        { url:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80', label:'현재 적용 중 ✓', tag:'빌딩/도심', current:true },
+        { url:'https://images.unsplash.com/photo-1579547944212-c4f4961a8dd8?w=1200&q=80', label:'샘플 2', tag:'AI/데이터' },
+        { url:'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80', label:'샘플 3', tag:'기술/회로' },
+      ],
+      'companyPhoto': [
+        { url:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80', label:'현재 적용 중 ✓', tag:'오피스 내부', current:true },
+        { url:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900&q=80', label:'샘플 2', tag:'협업/미팅' },
+        { url:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80', label:'샘플 3', tag:'도심 빌딩군' },
+      ],
+    };
+
+    const rows=[
+      {no:'18',cls:'PC',menu:'메인비주얼',area:'메인비주얼',title:'이미지1',date:'2025-11-14',type:'mainVisual'},
+      {no:'17',cls:'MO',menu:'메인비주얼',area:'메인비주얼',title:'이미지1',date:'2025-11-14',type:'mainVisual'},
+      {no:'16',cls:'PC',menu:'메인',area:'회사소개 이미지',title:'이미지1',date:'2025-11-14',type:'companyPhoto'},
+      {no:'15',cls:'PC',menu:'회사/연구소',area:'서브비주얼',title:'이미지1',date:'',type:''},
+      {no:'14',cls:'PC',menu:'인사말',area:'인사말이미지',title:'이미지3',date:'2025-11-24',type:''},
+      {no:'13',cls:'PC',menu:'연혁',area:'연혁이미지',title:'이미지4',date:'2025-12-19',type:''},
+      {no:'12',cls:'PC',menu:'CEO인사말',area:'서브비주얼',title:'이미지1',date:'',type:''},
+      {no:'11',cls:'PC',menu:'CEO인사말',area:'CEO인사말이미지',title:'이미지1',date:'2025-11-14',type:''},
+      {no:'10',cls:'PC',menu:'ESG경영',area:'서브비주얼',title:'이미지3',date:'2026-01-15',type:''},
+      {no:'9', cls:'PC',menu:'조직도',area:'서브비주얼',title:'이미지1',date:'',type:''},
+    ];
+    window._imgPools = IMG_POOLS;
     content.innerHTML=`
       <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">이미지관리</h3>
       ${adminSearchBar()}
@@ -4763,25 +4831,34 @@ function renderAdminContent(section) {
       <div class="admin-table-wrap"><table class="admin-table">
         <thead><tr><th><input type="checkbox" style="width:16px;height:16px;"></th><th>No</th><th>분류</th><th>메뉴</th><th>영역</th><th>제목</th><th>수정일</th><th>관리</th></tr></thead>
         <tbody>
-          ${[['18','PC','메인비주얼','메인비주얼','이미지1','2025-11-14'],['17','MO','메인비주얼','메인비주얼','이미지1','2025-11-14'],['16','PC','메인','회사소개 이미지','이미지1','2025-11-14'],['15','PC','회사/연구소','서브비주얼','이미지1',''],['14','PC','인사말','인사말이미지','이미지3','2025-11-24'],['13','PC','연혁','연혁이미지','이미지4','2025-12-19'],['12','PC','CEO인사말','서브비주얼','이미지1',''],['11','PC','CEO인사말','CEO인사말이미지','이미지1','2025-11-14'],['10','PC','ESG경영','서브비주얼','이미지3','2026-01-15'],['9','PC','조직도','서브비주얼','이미지1','']].map(r=>`
-          <tr><td><input type="checkbox" style="width:16px;height:16px;"></td>${r.map(c=>`<td>${c}</td>`).join('')}<td><button class="btn-edit">수정</button></td></tr>`).join('')}
+          ${rows.map(r=>`<tr>
+            <td><input type="checkbox" style="width:16px;height:16px;"></td>
+            <td>${r.no}</td><td>${r.cls}</td><td>${r.menu}</td><td>${r.area}</td><td>${r.title}</td><td>${r.date}</td>
+            <td><button class="btn-edit" ${r.type ? `onclick="openImgEditModal('${r.type}','${r.menu} - ${r.area}')"` : `onclick="showToast('이미지 수정은 서버 환경에서 이용 가능합니다.')"`}>수정</button></td>
+          </tr>`).join('')}
         </tbody></table></div>
       <div style="text-align:center;padding:16px;font-size:14px;color:var(--gray-dark);">1</div>
       <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:14px 18px;margin-top:16px;font-size:13px;color:#856404;">
         * pc 와 모바일의 메인비주얼 이미지 개수를 동일하게 업데이트 해주세요
       </div>
-      <div class="img-grid" style="margin-top:20px;">
-        ${config.slideImages.map((img,i)=>`
-          <div class="img-card ${config.heroSlides.includes(i+1)?'selected':''}" onclick="toggleImageSelect(${i})">
-            <div class="img-card-inner"><div class="img-card-bg ${img.grad||'slide-grad-1'}"></div>
-              <div class="img-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-            </div>
-            <div class="img-card-label"><strong>${img.title}</strong>
-              <p style="font-size:11px;color:#94a3b8;margin-top:2px;">메뉴(1depth): 메인비주얼 / 영역: 메인비주얼 / 이미지${i+1}</p>
-            </div>
-          </div>`).join('')}
+      <div style="background:#e8f4ff;border:1px solid #90caf9;border-radius:8px;padding:12px 18px;margin-top:8px;font-size:13px;color:#1a4a8a;">
+        💡 <strong>메인비주얼 (18번)</strong>과 <strong>회사소개 이미지 (16번)</strong>의 수정 버튼을 클릭하면 이미지 선택 화면이 나타납니다.
       </div>
-      <div style="padding:16px 0;"><button class="btn-primary-admin" onclick="saveSlideImages()">슬라이드 이미지 저장</button></div>`;
+
+      <!-- 이미지 선택 모달 -->
+      <div id="imgEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:32px;max-width:760px;width:92%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:2px solid #1a2e5a;padding-bottom:14px;">
+            <h3 id="imgModalTitle" style="font-size:17px;font-weight:800;color:#1a2e5a;margin:0;">이미지 선택</h3>
+            <button onclick="closeImgEditModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;line-height:1;">×</button>
+          </div>
+          <p style="font-size:13px;color:#555;margin-bottom:20px;">아래 이미지 중 하나를 클릭하면 메인 화면에 즉시 반영됩니다.</p>
+          <div id="imgChoiceGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:24px;gap:10px;">
+            <button onclick="closeImgEditModal()" style="padding:10px 24px;background:#e0e4ed;color:#444;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">취소</button>
+          </div>
+        </div>
+      </div>`;
 
   } else if(section==='userInfo') {
     content.innerHTML=`<h3 style="font-size:18px;font-weight:700;margin-bottom:24px;color:var(--primary);">이용자정보</h3>
@@ -5191,6 +5268,37 @@ function saveMenuName(rowIdx, mi, ci) {
   renderAdmin('menuName');
 }
 
+// ── 회사소개/CEO인사말 저장 ──
+function saveGreetingForm(cfgKey) {
+  const title   = (document.getElementById('gfTitle')   || {}).value || '';
+  const content = (document.getElementById('gfContent') || {}).value || '';
+  const closing = (document.getElementById('gfClosing') || {}).value || '';
+  if(!content) { showToast('내용을 입력해주세요.'); return; }
+  if(!config[cfgKey]) config[cfgKey] = {};
+  config[cfgKey].title   = title;
+  config[cfgKey].content = content;
+  config[cfgKey].closing = closing;
+  config[cfgKey]._modDate = new Date().toISOString().replace('T',' ').slice(0,19);
+  saveConfig(config);
+  showToast('✅ 수정 완료 — 메인페이지에 반영되었습니다.');
+  renderAdmin(cfgKey);
+}
+
+// ── 관리자메뉴 명칭 저장 ──
+function saveAdminMenuLabel(type, mi, ci, rowIdx) {
+  const val = (document.getElementById('aml_' + rowIdx) || {}).value || '';
+  if(!val.trim()) { showToast('변경할 메뉴명을 입력해주세요.'); return; }
+  if(!config.adminMenuLabels) config.adminMenuLabels = {};
+  if(type === 'p') {
+    config.adminMenuLabels['p_' + mi] = val.trim();
+  } else {
+    config.adminMenuLabels['c_' + mi + '_' + ci] = val.trim();
+  }
+  saveConfig(config);
+  showToast('✅ 관리자 메뉴명 저장 완료');
+  renderAdmin('adminMenuName');
+}
+
 function saveMainMenu(mi) {
   const val = document.getElementById(`mainMenuLabel_${mi}`).value.trim();
   if(val) { config.menu[mi].label = val; saveConfig(config); showToast('✅ 대메뉴 저장 완료'); renderAdmin(currentAdminSection); }
@@ -5198,6 +5306,93 @@ function saveMainMenu(mi) {
 function saveSubMenu(mi, ci) {
   const val = document.getElementById(`subMenu_${mi}_${ci}`).value.trim();
   if(val) { config.menu[mi].children[ci].label = val; saveConfig(config); showToast('✅ 서브메뉴 저장 완료'); renderAdmin(currentAdminSection); }
+}
+
+// ── 이미지 수정 모달 ──
+function openImgEditModal(type, title) {
+  const pool = (window._imgPools || {})[type];
+  if(!pool) { showToast('준비된 샘플 이미지가 없습니다.'); return; }
+  document.getElementById('imgModalTitle').textContent = title + ' — 이미지 선택';
+
+  // 현재 적용된 이미지 URL
+  const cfg = getSavedConfig();
+  const currentUrl = type === 'mainVisual'
+    ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80'
+    : 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80';
+
+  const grid = document.getElementById('imgChoiceGrid');
+  grid.innerHTML = pool.map((img, i) => {
+    const isActive = (cfg[type === 'mainVisual' ? 'heroMainImg' : 'companyImg'] || currentUrl) === img.url;
+    return `
+    <div onclick="applyImg('${type}','${img.url}',this)"
+         style="cursor:pointer;border-radius:12px;overflow:hidden;border:3px solid ${isActive ? '#2563eb' : '#e0e4ed'};
+                transition:border-color .2s,box-shadow .2s;box-shadow:${isActive ? '0 0 0 3px rgba(37,99,235,0.25)' : 'none'};"
+         class="img-choice-card">
+      <img src="${img.url}" alt="${img.label}"
+           style="width:100%;height:150px;object-fit:cover;display:block;"
+           loading="lazy"/>
+      <div style="padding:10px 12px;background:${isActive ? '#eff6ff' : '#f8faff'};">
+        <div style="font-size:12px;font-weight:700;color:${isActive ? '#2563eb' : '#1a2e5a'};margin-bottom:3px;">
+          ${isActive ? '✅ ' : ''}${img.label}
+        </div>
+        <div style="font-size:11px;color:#94a3b8;">${img.tag}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  window._imgModalType = type;
+  const modal = document.getElementById('imgEditModal');
+  modal.style.display = 'flex';
+}
+
+function closeImgEditModal() {
+  document.getElementById('imgEditModal').style.display = 'none';
+}
+
+function applyImg(type, url, cardEl) {
+  // 카드 선택 표시 갱신
+  document.querySelectorAll('.img-choice-card').forEach(c => {
+    c.style.borderColor = '#e0e4ed';
+    c.style.boxShadow = 'none';
+    const lbl = c.querySelector('div > div:first-child');
+    if(lbl) { lbl.style.color = '#1a2e5a'; lbl.textContent = lbl.textContent.replace('✅ ',''); }
+    c.querySelector('div').style.background = '#f8faff';
+  });
+  cardEl.style.borderColor = '#2563eb';
+  cardEl.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.25)';
+  const lbl = cardEl.querySelector('div > div:first-child');
+  if(lbl) { lbl.style.color = '#2563eb'; if(!lbl.textContent.includes('✅')) lbl.textContent = '✅ 현재 적용 중 ✓'; }
+  cardEl.querySelector('div').style.background = '#eff6ff';
+
+  // config에 저장
+  config = getSavedConfig();
+  if(type === 'mainVisual') {
+    config.heroMainImg = url;
+    // 메인 슬라이더 이미지 반영
+    const imgEl = document.getElementById('slide-company-img');
+    if(imgEl) imgEl.src = url;
+    // intro section 이미지 반영 (회사 소개 이미지도 같이 반영)
+    const introBg = document.getElementById('introImgBg');
+    if(introBg) {
+      const existImg = introBg.querySelector('img');
+      if(existImg) existImg.src = url;
+      else introBg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />`;
+    }
+  } else if(type === 'companyPhoto') {
+    config.companyImg = url;
+    // 회사소개(intro) 이미지 반영
+    const introBg = document.getElementById('introImgBg');
+    if(introBg) {
+      const existImg = introBg.querySelector('img');
+      if(existImg) existImg.src = url;
+      else introBg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />`;
+    }
+    // renderCompanyPage 이미지 반영
+    const compImg = document.querySelector('.company-greeting-img img');
+    if(compImg) compImg.src = url;
+  }
+  saveConfig(config);
+  showToast('✅ 이미지가 메인 화면에 반영되었습니다!');
 }
 
 function toggleImageSelect(idx) {
