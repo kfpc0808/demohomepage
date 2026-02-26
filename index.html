@@ -127,7 +127,7 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 
 .hero-slider { position:relative; margin-top:80px; overflow:hidden; height:480px; }
 .slide { position:absolute; inset:0; opacity:0; transition:opacity 1s ease; display:flex; align-items:center; justify-content:center; }
-/* .slide::after 제거 — 배경 이미지 표시를 위해 삭제 */
+/* .slide::after 제거 */
 .slide-content { position:relative !important; z-index:1 !important; }
 .slide.active { opacity:1; }
 .slide-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
@@ -2231,30 +2231,40 @@ function renderSlider() {
   });
   
   dots.innerHTML = activeSlides.map((_,i) => `<div class="slider-dot${i===0?' active':''}" onclick="goToSlide(${i})"></div>`).join('');
-  
-  // 정적 이미지 배경 적용 (canvas 미사용)
+
+  // ── 배경 이미지 적용: slide-bg div 방식 (canvas 위 z-index 문제 방지) ──
   const STATIC_IMGS = {
-    neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide1.jpg',  // 딥 블루 뉴럴
-    data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide2.jpg',  // 에메랄드 그린
-    grid:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide3.jpg',  // 딥 퍼플 헥사곤
-    particle: 'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide4.jpg',  // 딥 레드 파티클
-    wave:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide5.jpg',  // 청록 웨이브
-    aurora:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide6.jpg',  // 황금 오로라
+    neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide1.jpg',
+    data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide2.jpg',
+    grid:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide3.jpg',
+    particle: 'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide4.jpg',
+    wave:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide5.jpg',
+    aurora:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide6.jpg',
   };
   canvasAnimators = [];
-  // heroSlider 내부 슬라이드만 정확히 선택
   const heroEl = document.getElementById('heroSlider');
   const slideEls = heroEl ? heroEl.querySelectorAll('.slide') : [];
   activeSlides.forEach((slide, i) => {
+    // canvas 완전 숨김
     const canvas = document.getElementById('canvas_'+i);
     if(canvas) canvas.style.display = 'none';
     const slideEl = slideEls[i];
-    if(slideEl) {
-      const imgUrl = slide.type === 'photo' ? slide.photoUrl : (STATIC_IMGS[slide.type] || STATIC_IMGS.neural);
-      slideEl.style.backgroundImage = 'url(' + imgUrl + ')';
-      slideEl.style.backgroundSize = 'cover';
-      slideEl.style.backgroundPosition = 'center';
-    }
+    if(!slideEl) return;
+    // 기존 slide-bg 제거 후 새로 생성 (재렌더 시 중복 방지)
+    const oldBg = slideEl.querySelector('.slide-bg');
+    if(oldBg) oldBg.remove();
+    const imgUrl = slide.type === 'photo' ? slide.photoUrl : (STATIC_IMGS[slide.type] || STATIC_IMGS.neural);
+    const bgDiv = document.createElement('div');
+    bgDiv.className = 'slide-bg';
+    bgDiv.style.backgroundImage = 'url(' + imgUrl + ')';
+    bgDiv.style.backgroundSize = 'cover';
+    bgDiv.style.backgroundPosition = 'center';
+    // 슬라이드 텍스트 가독성을 위한 어두운 오버레이
+    bgDiv.style.cssText += ';position:absolute;inset:0;z-index:0;';
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,13,36,0.55) 0%,rgba(10,30,80,0.35) 100%);z-index:1;pointer-events:none;';
+    bgDiv.appendChild(overlay);
+    slideEl.insertBefore(bgDiv, slideEl.firstChild);
     canvasAnimators[i] = null;
   });
   
