@@ -131,7 +131,8 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 .slide-content { position:relative !important; z-index:1 !important; }
 .slide.active { opacity:1; }
 .slide-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
-.slide-canvas { position:absolute; inset:0; width:100%; height:100%; }
+.slide-canvas { display:none !important; }
+.slide { background-size:cover; background-position:center; }
 .slide-content { position:relative; z-index:1; text-align:center; color:#fff; padding:0 20px; }
 .slide-content h1 { font-size:40px; font-weight:900; line-height:1.3; margin-bottom:16px; text-shadow:0 2px 24px rgba(0,0,0,0.5); letter-spacing:-0.5px; }
 .slide-content h1 em { font-style:normal; color:#60c8ff; }
@@ -2232,7 +2233,7 @@ function renderSlider() {
   
   dots.innerHTML = activeSlides.map((_,i) => `<div class="slider-dot${i===0?' active':''}" onclick="goToSlide(${i})"></div>`).join('');
 
-  // ── 배경 이미지 적용: slide-bg div 방식 (canvas 위 z-index 문제 방지) ──
+  // ── 배경 이미지: .slide 요소에 직접 설정 (z-index 문제 없음) ──
   const STATIC_IMGS = {
     neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide1.jpg',
     data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide2.jpg',
@@ -2244,27 +2245,11 @@ function renderSlider() {
   canvasAnimators = [];
   const heroEl = document.getElementById('heroSlider');
   const slideEls = heroEl ? heroEl.querySelectorAll('.slide') : [];
-  activeSlides.forEach((slide, i) => {
-    // canvas 완전 숨김
-    const canvas = document.getElementById('canvas_'+i);
-    if(canvas) canvas.style.display = 'none';
-    const slideEl = slideEls[i];
+  activeSlides.forEach(function(slide, i) {
+    var slideEl = slideEls[i];
     if(!slideEl) return;
-    // 기존 slide-bg 제거 후 새로 생성 (재렌더 시 중복 방지)
-    const oldBg = slideEl.querySelector('.slide-bg');
-    if(oldBg) oldBg.remove();
-    const imgUrl = slide.type === 'photo' ? slide.photoUrl : (STATIC_IMGS[slide.type] || STATIC_IMGS.neural);
-    const bgDiv = document.createElement('div');
-    bgDiv.className = 'slide-bg';
-    bgDiv.style.backgroundImage = 'url(' + imgUrl + ')';
-    bgDiv.style.backgroundSize = 'cover';
-    bgDiv.style.backgroundPosition = 'center';
-    // 슬라이드 텍스트 가독성을 위한 어두운 오버레이
-    bgDiv.style.cssText += ';position:absolute;inset:0;z-index:0;';
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,13,36,0.55) 0%,rgba(10,30,80,0.35) 100%);z-index:1;pointer-events:none;';
-    bgDiv.appendChild(overlay);
-    slideEl.insertBefore(bgDiv, slideEl.firstChild);
+    var imgUrl = (slide.type === 'photo') ? slide.photoUrl : (STATIC_IMGS[slide.type] || STATIC_IMGS.neural);
+    slideEl.style.backgroundImage = 'url(' + imgUrl + ')';
     canvasAnimators[i] = null;
   });
   
