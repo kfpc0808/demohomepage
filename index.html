@@ -28,6 +28,24 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 #admin-page { display:none; }
 #sub-page { display:none; }
 
+/* 이미지관리 사이드바 강조 */
+.admin-imgmgmt-item,
+.admin-sub-item.admin-imgmgmt-item,
+.admin-sub-item.admin-imgmgmt-item.active {
+  background: linear-gradient(90deg,rgba(245,158,11,0.22),rgba(239,68,68,0.12)) !important;
+  border-left: 3px solid #f59e0b !important;
+  position: relative;
+}
+.imgmgmt-blink {
+  font-weight: 700;
+  animation: imgBlink 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes imgBlink {
+  0%,100% { color:#f59e0b; text-shadow: 0 0 6px rgba(245,158,11,0.6); }
+  50%      { color:#ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.7); }
+}
+
 /* HEADER */
 .site-header {
   position:fixed; top:0; left:0; right:0; z-index:1000;
@@ -1470,7 +1488,7 @@ img, video, iframe { max-width:100%; height:auto; }
     <ul class="info-confirm-list">
       <li><span class="li-icon">✅</span><span class="li-text"><strong>클릭 한 번</strong>으로 출퇴근 시간 기록</span></li>
       <li><span class="li-icon">✅</span><span class="li-text"><strong>연장근로 시간 자동 산출</strong>로 급여 관리 간편화</span></li>
-      <li><span class="li-icon">✅</span><span class="li-text"><strong>관리자 전용 화면</strong>에서 전 직원 일간·월간 근로 현황 실시간 파악</span></li>
+      <li><span class="li-icon">✅</span><span class="li-text"><strong>관리자 전용 화면</strong>에서 전 직원 일간·월간 근로 현황 실시간 파악<a href="javascript:void(0)" onclick="goAttendanceDailyAdmin()" style="display:inline-block;margin-left:4px;padding:2px 10px;background:linear-gradient(135deg,#1a6a3a,#27ae60);color:#fff;border-radius:12px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;">[확인하기]</a></span></li>
       <li><span class="li-icon">✅</span><span class="li-text"><strong>GPS 기반 위치 확인</strong>으로 부정 출퇴근 방지 및 정확한 근로 장소 기록</span></li>
       <li><span class="li-icon">✅</span><span class="li-text"><strong>'전자적 출퇴근 시스템'</strong> 방식으로 각종 고용지원금 신청 시 공식 증빙 자료 활용 가능</span></li>
     </ul>
@@ -1780,12 +1798,14 @@ const DEFAULT_CONFIG = {
       {id:'m5-5', label:'사내게시판', page:'사내게시판'},
     ]},
   ],
-  heroSlides: [1, 2, 3], // selected image indexes (1-based)
+  heroSlides: [1, 2, 3], // 슬라이드 3개 고정 (1-based index)
   slideImages: [
     { title:'이미지1', badge:'AI · FUTURE · FINANCE', headline:'혁신적인 <em>AI 금융</em> 컨설팅 서비스를 선도합니다.', sub:'도전과 창조의 정신으로 금융의 한계를 뛰어넘어 더 나은 미래를 만들어 나갑니다.', type:'neural' },
     { title:'이미지2', badge:'SMART FINANCIAL PLATFORM', headline:'<em>450만 금융인</em>과 함께하는 KFPC', sub:'최첨단 데이터 분석과 AI 기술로 고객의 성공을 위해 최선을 다하는 금융 전문 기업입니다.', type:'data' },
     { title:'이미지3', badge:'TRUST · INNOVATION · GROWTH', headline:'신뢰와 혁신으로 만드는 <em>금융의 미래</em>', sub:'스마트 금융 플랫폼 JARVIA와 함께 대한민국 금융 산업을 선도해 나갑니다.', type:'grid' },
     { title:'이미지4', badge:'NEXT GENERATION FINANCE', headline:'<em>스마트 금융 플랫폼</em>, KFPC와 함께', sub:'최첨단 AI 기술로 더 정확하고 빠른 금융 서비스를 제공합니다.', type:'particle' },
+    { title:'이미지5', badge:'GLOBAL FINANCIAL LEADER', headline:'글로벌 금융 리더, <em>(주)KFPC</em>', sub:'세계를 향해 나아가는 대한민국 금융 컨설팅의 미래를 KFPC와 함께 만들어갑니다.', type:'wave' },
+    { title:'이미지6', badge:'INNOVATION · TRUST · PEOPLE', headline:'사람 중심의 <em>스마트 금융</em> 솔루션', sub:'고객의 신뢰와 혁신 기술이 만나는 곳, KFPC가 함께합니다.', type:'aurora' },
   ],
   intro: {
     title: '주식회사 \'KFPC\' 및 부설 \'금융기술 연구소\' 를 소개합니다.',
@@ -1993,6 +2013,40 @@ function saveConfig(cfg) {
 }
 
 
+// ── 출퇴근 [확인하기] → 관리자 일별출퇴근관리로 이동 ──
+function goAttendanceDailyAdmin() {
+  // ① 출퇴근 안내 팝업(attendInfoModal) 닫기
+  const infoModal = document.getElementById('attendInfoModal');
+  if(infoModal) infoModal.classList.remove('open');
+
+  // ② 이미 관리자 모드(로그인 상태)이면 바로 섹션 이동
+  if(isLoggedIn) {
+    document.getElementById('main-site').style.display  = 'none';
+    document.getElementById('sub-page').style.display   = 'none';
+    document.getElementById('admin-page').style.display = 'block';
+    currentAdminSection = 'attendanceDaily';
+    renderAdmin('attendanceDaily');
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // ③ 로그인 안 된 경우 → 로그인 모달 열고 로그인 완료 후 해당 섹션으로 이동
+  const loginModal = document.getElementById('loginModal');
+  if(loginModal) {
+    loginModal.classList.add('active');
+    // 로그인 성공 후 실행할 콜백 등록
+    window._afterLoginCallback = function() {
+      window._afterLoginCallback = null;
+      document.getElementById('main-site').style.display  = 'none';
+      document.getElementById('sub-page').style.display   = 'none';
+      document.getElementById('admin-page').style.display = 'block';
+      currentAdminSection = 'attendanceDaily';
+      renderAdmin('attendanceDaily');
+      window.scrollTo(0, 0);
+    };
+  }
+}
+
 // ── 관리자 → 메인페이지 이동 ──
 function adminGoMain() {
   if(window.opener && !window.opener.closed) {
@@ -2134,8 +2188,12 @@ let canvasAnimators = [];
 
 function renderSlider() {
   config = getSavedConfig();
-  activeSlides = config.heroSlides.map(idx => config.slideImages[idx-1]).filter(Boolean);
-  if(activeSlides.length === 0) activeSlides = config.slideImages.slice(0,3);
+  // 3개 고정 슬롯 — 항상 정확히 3개 유지
+  const rawSlides = (config.heroSlides || [1,2,3])
+    .slice(0,3)
+    .map(idx => config.slideImages[idx-1])
+    .filter(s => s && typeof s === 'object');
+  activeSlides = rawSlides.length >= 3 ? rawSlides : config.slideImages.slice(0,3);
   
   const container = document.getElementById('heroSlider');
   const dots = document.getElementById('sliderDots');
@@ -2164,9 +2222,29 @@ function renderSlider() {
   // Start canvas animations
   activeSlides.forEach((slide, i) => {
     const canvas = document.getElementById('canvas_'+i);
-    if(slide.type === 'neural') canvasAnimators[i] = drawNeural(canvas);
+    if(!canvas) return;
+    if(slide.type === 'photo') {
+      // 사진 배경 슬라이드 처리
+      const slideEl = canvas.closest('.slide');
+      if(slideEl) {
+        canvas.style.display = 'none';
+        slideEl.style.backgroundImage = `url('${slide.photoUrl}')`;
+        slideEl.style.backgroundSize = 'cover';
+        slideEl.style.backgroundPosition = 'center';
+        if(!slideEl.querySelector('.photo-overlay')) {
+          const ov = document.createElement('div');
+          ov.className = 'photo-overlay';
+          ov.style.cssText = 'position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,13,26,0.75) 0%,rgba(26,46,90,0.55) 100%);z-index:0;';
+          slideEl.insertBefore(ov, slideEl.querySelector('.slide-content'));
+        }
+      }
+      canvasAnimators[i] = null;
+    }
+    else if(slide.type === 'neural') canvasAnimators[i] = drawNeural(canvas);
     else if(slide.type === 'data') canvasAnimators[i] = drawData(canvas);
     else if(slide.type === 'grid') canvasAnimators[i] = drawGrid(canvas);
+    else if(slide.type === 'wave') canvasAnimators[i] = drawWave(canvas);
+    else if(slide.type === 'aurora') canvasAnimators[i] = drawAurora(canvas);
     else canvasAnimators[i] = drawParticle(canvas);
   });
   
@@ -2253,14 +2331,14 @@ function drawData(canvas) {
   let raf;
   function draw() {
     const w=canvas.width, h=canvas.height;
-    ctx.fillStyle='rgba(2,8,28,0.95)';
+    ctx.fillStyle='rgba(2,20,8,0.95)';
     ctx.fillRect(0,0,w,h);
     
-    // Gradient overlay
+    // Gradient overlay - 초록
     const grd = ctx.createLinearGradient(0,0,w,h);
-    grd.addColorStop(0,'rgba(0,40,80,0.5)');
-    grd.addColorStop(0.5,'rgba(0,60,120,0.3)');
-    grd.addColorStop(1,'rgba(0,20,60,0.5)');
+    grd.addColorStop(0,'rgba(5,46,22,0.7)');
+    grd.addColorStop(0.5,'rgba(2,80,30,0.4)');
+    grd.addColorStop(1,'rgba(1,30,10,0.6)');
     ctx.fillStyle=grd; ctx.fillRect(0,0,w,h);
     
     const t = Date.now()*0.001;
@@ -2280,13 +2358,13 @@ function drawData(canvas) {
     // Central glow
     const cx=w*0.5, cy=h*0.5;
     const g2 = ctx.createRadialGradient(cx,cy,0,cx,cy,w*0.5);
-    g2.addColorStop(0,'rgba(0,150,255,0.12)');
+    g2.addColorStop(0,'rgba(34,197,94,0.12)');
     g2.addColorStop(1,'transparent');
     ctx.fillStyle=g2; ctx.fillRect(0,0,w,h);
     
     // Horizontal scan line
     const scanY = ((t*50)%h);
-    ctx.strokeStyle='rgba(0,200,255,0.12)';
+    ctx.strokeStyle='rgba(0,200,80,0.12)';
     ctx.lineWidth=2;
     ctx.beginPath(); ctx.moveTo(0,scanY); ctx.lineTo(w,scanY); ctx.stroke();
     
@@ -2318,14 +2396,14 @@ function drawGrid(canvas) {
     ctx.beginPath();
     for(let i=0;i<6;i++) { const a=i*Math.PI/3-Math.PI/6; const x=cx+size*Math.cos(a); const y=cy+size*Math.sin(a); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
     ctx.closePath();
-    ctx.strokeStyle=`rgba(60,140,255,${alpha})`; ctx.lineWidth=0.8; ctx.stroke();
-    ctx.fillStyle=`rgba(20,80,180,${alpha*0.15})`; ctx.fill();
+    ctx.strokeStyle=`rgba(168,85,247,${alpha})`; ctx.lineWidth=0.8; ctx.stroke();
+    ctx.fillStyle=`rgba(124,58,237,${alpha*0.15})`; ctx.fill();
   }
   
   function draw() {
     const w=canvas.width, h=canvas.height, t=Date.now()*0.001;
     const bg = ctx.createLinearGradient(0,0,w,h);
-    bg.addColorStop(0,'#03091e'); bg.addColorStop(0.5,'#0a1840'); bg.addColorStop(1,'#050e25');
+    bg.addColorStop(0,'#0d0520'); bg.addColorStop(0.5,'#1a0a3d'); bg.addColorStop(1,'#0f0630');
     ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
     
     hexagons.forEach(hex => {
@@ -2333,22 +2411,22 @@ function drawGrid(canvas) {
       drawHex(ctx, hex.cx, hex.cy, 24, pulse*0.6+0.05);
     });
     
-    // Moving glow orbs
+    // Moving glow orbs - 보라색
     for(let i=0;i<4;i++) {
       const ox = w*(0.2+0.6*((Math.sin(t*0.3+i*1.5)*0.5+0.5)));
       const oy = h*(0.2+0.6*((Math.cos(t*0.4+i*1.2)*0.5+0.5)));
       const g = ctx.createRadialGradient(ox,oy,0,ox,oy,w*0.25);
-      const colors=['rgba(0,100,255,0.2)','rgba(0,200,255,0.15)','rgba(100,0,255,0.15)','rgba(0,150,200,0.18)'];
+      const colors=['rgba(139,92,246,0.25)','rgba(196,181,253,0.15)','rgba(168,85,247,0.2)','rgba(109,40,217,0.18)'];
       g.addColorStop(0,colors[i]); g.addColorStop(1,'transparent');
       ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
     }
     
-    // Data lines
+    // Data lines - 보라색
     for(let i=0;i<8;i++) {
       const y = h*(0.1+i*0.11);
       const x1 = (t*60+i*137)%w;
       const x2 = x1+80;
-      ctx.strokeStyle=`rgba(100,200,255,0.3)`; ctx.lineWidth=1.5;
+      ctx.strokeStyle=`rgba(196,181,253,0.35)`; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2>w?w:x2,y); ctx.stroke();
     }
     
@@ -2365,15 +2443,15 @@ function drawParticle(canvas) {
   resize();
   
   const pts = [];
-  for(let i=0;i<120;i++) pts.push({ x:Math.random(), y:Math.random(), vx:(Math.random()-0.5)*0.0004, vy:(Math.random()-0.5)*0.0004, r:Math.random()*1.8+0.5, col:Math.random()<0.3?'255,180,0':'0,200,255' });
+  for(let i=0;i<120;i++) pts.push({ x:Math.random(), y:Math.random(), vx:(Math.random()-0.5)*0.0004, vy:(Math.random()-0.5)*0.0004, r:Math.random()*1.8+0.5, col:Math.random()<0.5?'255,80,80':'220,30,30' });
   
   let raf;
   function draw() {
     const w=canvas.width, h=canvas.height, t=Date.now()*0.001;
-    ctx.fillStyle='rgba(4,8,22,0.92)'; ctx.fillRect(0,0,w,h);
+    ctx.fillStyle='rgba(20,2,2,0.92)'; ctx.fillRect(0,0,w,h);
     
     const bg = ctx.createRadialGradient(w*0.5,h*0.5,0,w*0.5,h*0.5,w*0.6);
-    bg.addColorStop(0,'rgba(10,40,100,0.5)'); bg.addColorStop(1,'rgba(0,5,20,0.6)');
+    bg.addColorStop(0,'rgba(80,5,5,0.6)'); bg.addColorStop(1,'rgba(30,0,0,0.7)');
     ctx.fillStyle=bg; ctx.fillRect(0,0,w,h);
     
     pts.forEach(p => { p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>1) p.vx*=-1; if(p.y<0||p.y>1) p.vy*=-1; });
@@ -2381,7 +2459,7 @@ function drawParticle(canvas) {
     for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++) {
       const a=pts[i],b=pts[j];
       const dx=(a.x-b.x)*w,dy=(a.y-b.y)*h,d=Math.sqrt(dx*dx+dy*dy);
-      if(d<120) { ctx.strokeStyle=`rgba(0,160,255,${(1-d/120)*0.3})`; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(a.x*w,a.y*h); ctx.lineTo(b.x*w,b.y*h); ctx.stroke(); }
+      if(d<120) { ctx.strokeStyle=`rgba(255,60,60,${(1-d/120)*0.3})`; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(a.x*w,a.y*h); ctx.lineTo(b.x*w,b.y*h); ctx.stroke(); }
     }
     
     pts.forEach(p => {
@@ -2391,7 +2469,7 @@ function drawParticle(canvas) {
     
     // Central AI symbol
     const cx=w*0.85,cy=h*0.5,size=80;
-    ctx.strokeStyle=`rgba(0,200,255,${0.3+Math.sin(t)*0.15})`;
+    ctx.strokeStyle=`rgba(255,100,100,${0.3+Math.sin(t)*0.15})`;
     ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,cy,size,0,Math.PI*2); ctx.stroke();
     ctx.beginPath(); ctx.arc(cx,cy,size*0.6,0,Math.PI*2); ctx.stroke();
     for(let i=0;i<8;i++) {
@@ -2796,28 +2874,22 @@ function getSubPagePopupContent(parent, pageName) {
         </div>`
     },
     '중요문서(연구노트)': {
-      title: '중요문서(연구노트) 페이지 안내',
+      title: '중요문서(연구노트) 안내',
       body: `
-        <p><strong>"중요문서(연구노트)"</strong> 페이지입니다.</p>
+        <p style="line-height:2;font-size:14px;color:#374151;">
+          회사의 중요문서(연구노트, 근로계약서, 협약서, 견적서 등...)를<br>
+          <strong style="color:#1a2e5a;">시점인증 받은 후 보관</strong>하면 쟁송시 법률적으로 보호를 받을 수 있습니다.
+        </p>
         <div class="info-popup-highlight">
-          ✏️ <strong>관리자 페이지에서 이 페이지 명칭을 수정할 수 있습니다!</strong>
-        </div>
-        <p style="margin-top:10px;"><strong>🔐 시점확인 스탬프 & 문서 암호화 서비스</strong></p>
-        <div class="info-popup-highlight">
-          연구노트, 견적서, 계약서, 근로계약서, 제휴협약서 등 <strong>중요 문서를 PDF로 관리</strong>할 수 있습니다.<br><br>
-          ⏰ <strong>시점확인 스탬프</strong>: 해당 문서가 특정 시점에 존재했음을 증명하는 법적 안전장치로, PDF에 타임스탬프를 자동으로 찍어 드립니다.<br><br>
-          ✏️ <strong>시점확인 프로세스</strong>: 중요문서 pdf(연구노트 등..)를 업로드하면 실시간 '한국전자인증'을 통해 시점확인 스탬프가 찍히고 해당문서의 <b>암호화 파일</b>이 생성되어 동시에 '관리자페이지'로 다운됩니다.<a id="timestampLink" href="https://raw.githubusercontent.com/kfpc0808/demohomepage/main/timestamp.png" target="_blank" style="display:inline-block;margin-left:4px;padding:2px 10px;background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;border-radius:12px;font-size:12px;font-weight:700;text-decoration:none;cursor:pointer;">[확인하기]</a><br><br>
-          🔒 <strong>암호화 File 저장</strong>: 중요 문서를 암호화 File로 변환하여 안전하게 보관하여 법적안전장치를 확보하게 되며 승인된 사용자만 열람할 수 있습니다.<br><br>
-          이 기능은 <strong>관리자 페이지에서 구매·활성화</strong>하여 사용할 수 있습니다.
+          ⚖️ 해당 시점에 문서사실 존재가 <strong>법적으로 확인 증명</strong> 됩니다.
         </div>
         <div class="info-popup-tags">
-          <span class="info-popup-tag">페이지명 변경</span>
-          <span class="info-popup-tag">시점확인 스탬프</span>
-          <span class="info-popup-tag">PDF 암호화</span>
           <span class="info-popup-tag">법적 안전장치</span>
-          <span class="info-popup-tag">관리자 구매 기능</span>
+          <span class="info-popup-tag">시점인증</span>
+          <span class="info-popup-tag">PDF 암호화</span>
         </div>`
     },
+
     '사내게시판': {
       title: '사내게시판 페이지 안내',
       body: `
@@ -3456,7 +3528,7 @@ function renderCsResearchPage() {
           ${rows.map(r=>`<tr>
             <td>${r.no}</td>
             <td>${r.year}</td>
-            <td class="td-title">${r.title}</td>
+            <td class="td-title" onclick="showCsResearchPopup()">${r.title}</td>
             <td>${r.dept}</td>
             <td>${r.writer}</td>
             <td>${r.certDate}</td>
@@ -3468,7 +3540,7 @@ function renderCsResearchPage() {
       </div>
       <div class="cs-footer">
         <div class="cs-pager"><span class="active">1</span></div>
-        <button class="cs-write-btn">✏️ 글쓰기</button>
+        <button class="cs-write-btn" onclick="showCsWritePopup()">✏️ 글쓰기</button>
       </div>
     </div>`;
 }
@@ -3543,6 +3615,94 @@ function renderCsInternalPage() {
         <button class="cs-write-btn">✏️ 글쓰기</button>
       </div>
     </div>`;
+}
+
+
+// ===== CANVAS 5: Wave (근사한 파동) =====
+function drawWave(canvas) {
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  let t = 0, raf;
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#021a18';
+    ctx.fillRect(0, 0, w, h);
+    // 배경 그라디언트 - 청록
+    const bg = ctx.createLinearGradient(0, 0, w, h);
+    bg.addColorStop(0, '#042f2e'); bg.addColorStop(1, '#063a38');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+    // 파동 레이어 3개
+    const waves = [
+      { color:'rgba(15,118,110,0.35)', amp:60, freq:0.008, speed:0.015, phase:0 },
+      { color:'rgba(99,179,237,0.25)', amp:45, freq:0.012, speed:0.022, phase:1.5 },
+      { color:'rgba(147,197,253,0.15)', amp:35, freq:0.018, speed:0.03,  phase:3 },
+    ];
+    waves.forEach(wv => {
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      for(let x = 0; x <= w; x += 3) {
+        const y = h*0.55 + Math.sin(x * wv.freq + t * wv.speed + wv.phase) * wv.amp
+                         + Math.sin(x * wv.freq * 2 + t * wv.speed * 1.5) * (wv.amp * 0.4);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.lineTo(w, h); ctx.lineTo(0, h); ctx.closePath();
+      ctx.fillStyle = wv.color; ctx.fill();
+    });
+    // 반짝이는 점들
+    for(let i = 0; i < 40; i++) {
+      const sx = (Math.sin(i * 2.7 + t * 0.005) * 0.5 + 0.5) * w;
+      const sy = (Math.cos(i * 1.9 + t * 0.007) * 0.5 + 0.5) * h * 0.5;
+      const alpha = (Math.sin(t * 0.02 + i) + 1) * 0.4;
+      ctx.beginPath(); ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(147,197,253,${alpha})`; ctx.fill();
+    }
+    t++; raf = requestAnimationFrame(draw);
+  }
+  draw(); return raf;
+}
+
+// ===== CANVAS 6: Aurora (오로라 그라디언트) =====
+function drawAurora(canvas) {
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  let t = 0, raf;
+  function draw() {
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#1c1003'; ctx.fillRect(0, 0, w, h);
+    // 오로라 밴드 4개
+    const bands = [
+      { cx:0.3, cy:0.4, rx:0.6, ry:0.3, color1:'rgba(180,83,9,0.8)', color2:'rgba(245,158,11,0.3)', spd:0.008, amp:0.06 },
+      { cx:0.7, cy:0.5, rx:0.5, ry:0.25, color1:'rgba(180,120,0,0.6)', color2:'rgba(252,211,77,0.2)', spd:0.012, amp:0.08 },
+      { cx:0.5, cy:0.35, rx:0.7, ry:0.2, color1:'rgba(161,40,0,0.5)', color2:'rgba(251,146,60,0.15)', spd:0.006, amp:0.05 },
+      { cx:0.2, cy:0.6, rx:0.4, ry:0.22, color1:'rgba(146,64,14,0.6)', color2:'rgba(253,186,116,0.2)', spd:0.018, amp:0.07 },
+    ];
+    bands.forEach((b, bi) => {
+      const ox = Math.sin(t * b.spd + bi) * b.amp;
+      const oy = Math.cos(t * b.spd * 0.7 + bi * 1.3) * b.amp * 0.6;
+      const grd = ctx.createRadialGradient((b.cx+ox)*w, (b.cy+oy)*h, 0, (b.cx+ox)*w, (b.cy+oy)*h, b.rx*w);
+      grd.addColorStop(0, b.color1); grd.addColorStop(1, b.color2);
+      if(w <= 0 || h <= 0) return;
+      const scaleY = b.ry/b.rx * (h/w);
+      ctx.save(); ctx.scale(1, scaleY);
+      ctx.beginPath(); ctx.ellipse((b.cx+ox)*w, (b.cy+oy)*h*(w/h), b.rx*w, b.rx*w, 0, 0, Math.PI*2);
+      ctx.fillStyle = grd; ctx.fill(); ctx.restore();
+    });
+    // 별 반짝임
+    for(let i = 0; i < 80; i++) {
+      const sx = ((i * 137.5) % 1) * w;
+      const sy = ((i * 97.3) % 1) * h * 0.7;
+      const alpha = (Math.sin(t * 0.03 + i * 0.5) + 1) * 0.35;
+      const r = i % 5 === 0 ? 2 : 1;
+      ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,220,255,${alpha})`; ctx.fill();
+    }
+    t++; raf = requestAnimationFrame(draw);
+  }
+  draw(); return raf;
 }
 
 // ===== CEO인사말 PAGE =====
@@ -4562,11 +4722,17 @@ function doLogin() {
 }
 function goAdmin() {
   document.getElementById('loginModal').classList.remove('active');
-  // 관리자 페이지를 별도 창으로 열기
+  // _afterLoginCallback이 등록된 경우(확인하기 클릭 등) 콜백 실행
+  if(typeof window._afterLoginCallback === 'function') {
+    const cb = window._afterLoginCallback;
+    window._afterLoginCallback = null;
+    cb();
+    return;
+  }
+  // 일반 로그인: 관리자 페이지를 별도 창으로 열기
   const adminUrl = location.href.split('?')[0] + '?mode=admin';
   const adminWin = window.open(adminUrl, 'kfpc_admin', 'width=1280,height=900,scrollbars=yes,resizable=yes');
   if(!adminWin) {
-    // 팝업 차단된 경우 대비
     alert('팝업이 차단되었습니다. 브라우저에서 팝업 허용 후 다시 시도해주세요.');
   }
 }
@@ -4614,10 +4780,16 @@ function renderAdminSidebar() {
           ${m.children.map((c, j) => {
             const isEdChild = EDITABLE_CHILD_IDS.has(c.id);
             const cLabel = labels['c_' + i + '_' + j] || c.label;
-            return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''} ${isEdChild?'admin-editable-child':''}" onclick="renderAdmin('${c.id}')">${isEdChild?'▶ ':''}${cLabel}</div>`;
+            if(c.id==='imageMgmt') {
+              return `<div class="admin-sub-item admin-imgmgmt-item ${c.id===currentAdminSection?'active':''}" onclick="renderAdmin('${c.id}')">🖼️ <span class="imgmgmt-blink">${cLabel}</span></div>`;
+            }
+            return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''} ${isEdChild?'admin-editable-child':''}" onclick="${c.id==='csResearch'?'adminShowCsResearch()':"renderAdmin('" + c.id + "')"}">${isEdChild?'▶ ':''}${cLabel}</div>`;
           }).join('')}
         </div>
       `;
+    }
+    if(m.id==='imageMgmt') {
+      return `<div class="admin-menu-item admin-imgmgmt-item ${m.id===currentAdminSection?'active':''}" onclick="renderAdmin('${m.id}')">🖼️ <span class="imgmgmt-blink">${pLabel}</span></div>`;
     }
     return `<div class="admin-menu-item ${m.id===currentAdminSection?'active':''}" onclick="renderAdmin('${m.id}')">${pLabel}</div>`;
   }).join('');
@@ -4809,53 +4981,150 @@ function renderAdminContent(section) {
         { url:'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900&q=80', label:'샘플 2', tag:'협업/미팅' },
         { url:'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=900&q=80', label:'샘플 3', tag:'도심 빌딩군' },
       ],
+      'slide5': [
+        { url:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=85', label:'현재 적용 중 ✓', tag:'금융/서류', current:true },
+        { url:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1920&q=85', label:'샘플 2', tag:'주식 차트' },
+        { url:'https://images.unsplash.com/photo-1560472355-536de3962603?w=1920&q=85', label:'샘플 3', tag:'비즈니스 미팅' },
+      ],
+      'slide6': [
+        { url:'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1920&q=85', label:'현재 적용 중 ✓', tag:'계산기/금융', current:true },
+        { url:'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1920&q=85', label:'샘플 2', tag:'비즈니스 정장' },
+        { url:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=85', label:'샘플 3', tag:'빌딩/도심' },
+      ],
     };
 
-    const rows=[
-      {no:'18',cls:'PC',menu:'메인비주얼',area:'메인비주얼',title:'이미지1',date:'2025-11-14',type:'mainVisual'},
-      {no:'17',cls:'MO',menu:'메인비주얼',area:'메인비주얼',title:'이미지1',date:'2025-11-14',type:'mainVisual'},
-      {no:'16',cls:'PC',menu:'메인',area:'회사소개 이미지',title:'이미지1',date:'2025-11-14',type:'companyPhoto'},
-      {no:'15',cls:'PC',menu:'회사/연구소',area:'서브비주얼',title:'이미지1',date:'',type:''},
-      {no:'14',cls:'PC',menu:'인사말',area:'인사말이미지',title:'이미지3',date:'2025-11-24',type:''},
-      {no:'13',cls:'PC',menu:'연혁',area:'연혁이미지',title:'이미지4',date:'2025-12-19',type:''},
-      {no:'12',cls:'PC',menu:'CEO인사말',area:'서브비주얼',title:'이미지1',date:'',type:''},
-      {no:'11',cls:'PC',menu:'CEO인사말',area:'CEO인사말이미지',title:'이미지1',date:'2025-11-14',type:''},
-      {no:'10',cls:'PC',menu:'ESG경영',area:'서브비주얼',title:'이미지3',date:'2026-01-15',type:''},
-      {no:'9', cls:'PC',menu:'조직도',area:'서브비주얼',title:'이미지1',date:'',type:''},
+    // ── 슬라이드 3개 고정 슬롯 — 스왑 방식 ──
+    const SLIDE_POOL = [
+      { imgNum:1, label:'이미지1 — Neural',   tag:'파란 육각형 패턴',   type:'neural',   preview:'linear-gradient(135deg,#0a1628 0%,#1e4fab 100%)',   dot:'#3b82f6' },
+      { imgNum:2, label:'이미지2 — Data',     tag:'초록 파티클 네트워크', type:'data',     preview:'linear-gradient(135deg,#052e16 0%,#16a34a 100%)',   dot:'#22c55e' },
+      { imgNum:3, label:'이미지3 — Grid',     tag:'보라 라인 헥사곤',    type:'grid',     preview:'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',   dot:'#a855f7' },
+      { imgNum:4, label:'이미지4 — Particle', tag:'빨간 빛 입자',        type:'particle', preview:'linear-gradient(135deg,#450a0a 0%,#dc2626 100%)',   dot:'#ef4444' },
+      { imgNum:5, label:'이미지5 — Wave',     tag:'청록 파동/웨이브',     type:'wave',     preview:'linear-gradient(135deg,#042f2e 0%,#0d9488 100%)',   dot:'#14b8a6' },
+      { imgNum:6, label:'이미지6 — Aurora',   tag:'황금 오로라 빛',       type:'aurora',   preview:'linear-gradient(135deg,#1c1003 0%,#b45309 100%)',   dot:'#f59e0b' },
     ];
+    window._slidePool = SLIDE_POOL;
+
+    // 현재 3개 슬롯
+    const cfg = getSavedConfig();
+    const slots = (cfg.heroSlides && cfg.heroSlides.length >= 3)
+      ? cfg.heroSlides.slice(0,3) : [1,2,3];
+
     window._imgPools = IMG_POOLS;
     content.innerHTML=`
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">이미지관리</h3>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:14px;color:var(--primary);">이미지관리</h3>
+
+      <!-- ▶ 안내 배너 -->
+      <div style="background:linear-gradient(135deg,#1a2e5a 0%,#1e4080 100%);
+                  border-radius:10px;padding:15px 20px;margin-bottom:10px;
+                  display:flex;align-items:flex-start;gap:12px;">
+        <span style="font-size:22px;flex-shrink:0;margin-top:2px;">💡</span>
+        <div style="color:#fff;font-size:13px;line-height:1.8;">
+          <div style="font-size:14px;font-weight:800;color:#fbbf24;margin-bottom:4px;">슬라이드 이미지 교체 안내</div>
+          히어로 슬라이더는 <strong style="color:#86efac;">항상 3개 고정</strong>입니다.
+          각 슬라이드의 <strong style="color:#fff;">수정 버튼</strong>을 클릭하면 <strong style="color:#fbbf24;">6가지 배경 스타일</strong> 중 하나로 교체할 수 있습니다.<br>
+          선택 후 반드시 <strong style="color:#fbbf24;">✅ 확인 적용</strong>을 눌러야 저장됩니다.&nbsp;·&nbsp;
+          <strong style="color:#93c5fd;">📌 페이지 명칭</strong> 열 = 메인 화면 반영 위치
+        </div>
+      </div>
+      <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;
+                  padding:10px 16px;margin-bottom:16px;font-size:13px;color:#856404;">
+        ⚠️ PC 와 모바일의 메인비주얼 이미지 개수를 동일하게 업데이트 해주세요
+      </div>
+
       ${adminSearchBar()}
-      ${adminListHeader(18,'')}
+      ${adminListHeader(14,'')}
       <div class="admin-table-wrap"><table class="admin-table">
-        <thead><tr><th><input type="checkbox" style="width:16px;height:16px;"></th><th>No</th><th>분류</th><th>메뉴</th><th>영역</th><th>제목</th><th>수정일</th><th>관리</th></tr></thead>
+        <thead><tr>
+          <th><input type="checkbox" style="width:16px;height:16px;"></th>
+          <th>No</th><th>분류</th><th>메뉴</th><th>영역</th><th>현재 적용 이미지</th>
+          <th style="background:#1e3a6e;color:#93c5fd;font-weight:700;white-space:nowrap;">📌 페이지 명칭</th>
+          <th>관리</th>
+        </tr></thead>
         <tbody>
-          ${rows.map(r=>`<tr>
+          <!-- ✅ 슬라이드 3개 고정 슬롯 -->
+          ${slots.map((imgNum, slotIdx) => {
+            const img = SLIDE_POOL.find(p=>p.imgNum===imgNum) || SLIDE_POOL[0];
+            return `<tr style="background:${slotIdx%2===0?'#f0f4ff':'#fff'};">
+              <td><input type="checkbox" style="width:16px;height:16px;"></td>
+              <td style="font-weight:700;color:#2563eb;">${slotIdx+1}</td>
+              <td>PC</td>
+              <td>메인슬라이드</td>
+              <td>슬라이드 ${slotIdx+1}번째</td>
+              <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="width:44px;height:44px;border-radius:8px;background:${img.preview};flex-shrink:0;
+                              border:2px solid rgba(255,255,255,0.15);box-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>
+                  <div>
+                    <div style="font-size:12px;font-weight:700;color:#1a2e5a;">${img.label}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${img.tag}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span style="background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap;">
+                  메인 홈 › 히어로 슬라이더 ${slotIdx+1}번째
+                </span>
+              </td>
+              <td><button class="btn-edit" onclick="openSlideSwapModal(${slotIdx})">수정</button></td>
+            </tr>`;
+          }).join('')}
+          <!-- 기타 이미지 행 (수정 불가) -->
+          ${[
+            {no:'4',cls:'PC',menu:'메인',        area:'회사소개 이미지', page:'메인 홈 › 회사소개 섹션 좌측 사진', type:'companyPhoto'},
+            {no:'5',cls:'PC',menu:'회사/연구소', area:'서브비주얼',      page:'소개메뉴 › 회사/연구소소개 상단',  type:''},
+            {no:'6',cls:'PC',menu:'인사말',      area:'인사말이미지',    page:'소개메뉴 › 인사말 사진',           type:''},
+            {no:'7',cls:'PC',menu:'연혁',        area:'연혁이미지',      page:'소개메뉴 › 연혁 이미지',           type:''},
+            {no:'8',cls:'PC',menu:'CEO인사말',   area:'CEO인사말이미지', page:'소개메뉴 › CEO 사진',              type:''},
+            {no:'9',cls:'PC',menu:'ESG경영',     area:'서브비주얼',      page:'소개메뉴 › ESG경영 상단',          type:''},
+          ].map(r => `<tr>
             <td><input type="checkbox" style="width:16px;height:16px;"></td>
-            <td>${r.no}</td><td>${r.cls}</td><td>${r.menu}</td><td>${r.area}</td><td>${r.title}</td><td>${r.date}</td>
-            <td><button class="btn-edit" ${r.type ? `onclick="openImgEditModal('${r.type}','${r.menu} - ${r.area}')"` : `onclick="showToast('이미지 수정은 서버 환경에서 이용 가능합니다.')"`}>수정</button></td>
+            <td style="color:#94a3b8;">${r.no}</td><td>${r.cls}</td><td>${r.menu}</td><td>${r.area}</td>
+            <td><span style="font-size:11px;color:#94a3b8;">—</span></td>
+            <td><span style="font-size:11px;color:#94a3b8;">${r.page}</span></td>
+            <td><button class="btn-edit" ${r.type
+              ? `onclick="openImgEditModal('${r.type}','${r.menu} - ${r.area}')"`
+              : `onclick="showToast('이미지 수정은 서버 환경에서 이용 가능합니다.')"`
+            }>수정</button></td>
           </tr>`).join('')}
         </tbody></table></div>
       <div style="text-align:center;padding:16px;font-size:14px;color:var(--gray-dark);">1</div>
-      <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:14px 18px;margin-top:16px;font-size:13px;color:#856404;">
-        * pc 와 모바일의 메인비주얼 이미지 개수를 동일하게 업데이트 해주세요
-      </div>
-      <div style="background:#e8f4ff;border:1px solid #90caf9;border-radius:8px;padding:12px 18px;margin-top:8px;font-size:13px;color:#1a4a8a;">
-        💡 <strong>메인비주얼 (18번)</strong>과 <strong>회사소개 이미지 (16번)</strong>의 수정 버튼을 클릭하면 이미지 선택 화면이 나타납니다.
+
+      <!-- ▶ 슬라이드 교체 모달 -->
+      <div id="slideSwapModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:28px 32px;max-width:720px;width:94%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.4);">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid #1a2e5a;margin-bottom:8px;">
+            <div>
+              <h3 id="swapModalTitle" style="font-size:17px;font-weight:800;color:#1a2e5a;margin:0;"></h3>
+              <p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">6가지 배경 스타일 중 1개를 선택하면 해당 슬라이드가 교체됩니다.</p>
+            </div>
+            <button onclick="closeSlideSwapModal()" style="background:none;border:none;font-size:26px;cursor:pointer;color:#999;line-height:1;">×</button>
+          </div>
+          <div id="swapChoiceGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;"></div>
+          <div style="display:flex;justify-content:flex-end;margin-top:20px;gap:12px;padding-top:14px;border-top:1px solid #e0e4ed;">
+            <button onclick="closeSlideSwapModal()" style="padding:11px 24px;background:#e0e4ed;color:#555;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">취소</button>
+            <button id="swapConfirmBtn" onclick="confirmSlideSwap(window._swapSlotIdx)" disabled
+              style="padding:11px 28px;background:#9ca3af;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:not-allowed;opacity:0.6;transition:all .2s;">
+              ✅ 확인 적용
+            </button>
+          </div>
+        </div>
       </div>
 
-      <!-- 이미지 선택 모달 -->
-      <div id="imgEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:16px;padding:32px;max-width:760px;width:92%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;border-bottom:2px solid #1a2e5a;padding-bottom:14px;">
+      <!-- 기존 이미지 선택 모달 (회사소개 이미지용) -->
+      <div id="imgEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:16px;padding:32px;max-width:780px;width:92%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.4);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;border-bottom:2px solid #1a2e5a;padding-bottom:14px;">
             <h3 id="imgModalTitle" style="font-size:17px;font-weight:800;color:#1a2e5a;margin:0;">이미지 선택</h3>
-            <button onclick="closeImgEditModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666;line-height:1;">×</button>
+            <button onclick="closeImgEditModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#999;line-height:1;padding:0 4px;">×</button>
           </div>
-          <p style="font-size:13px;color:#555;margin-bottom:20px;">아래 이미지 중 하나를 클릭하면 메인 화면에 즉시 반영됩니다.</p>
+          <p style="font-size:13px;color:#666;margin:12px 0 20px;">이미지를 클릭해서 선택한 후 <strong style="color:#1a2e5a;">✅ 확인 적용</strong> 버튼을 눌러주세요.</p>
           <div id="imgChoiceGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;"></div>
-          <div style="display:flex;justify-content:flex-end;margin-top:24px;gap:10px;">
-            <button onclick="closeImgEditModal()" style="padding:10px 24px;background:#e0e4ed;color:#444;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">취소</button>
+          <div style="display:flex;justify-content:flex-end;margin-top:24px;gap:12px;padding-top:16px;border-top:1px solid #e0e4ed;">
+            <button onclick="closeImgEditModal()" style="padding:12px 28px;background:#e0e4ed;color:#555;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">취소</button>
+            <button id="imgConfirmBtn" onclick="confirmImgApply()" disabled
+              style="padding:12px 32px;background:#9ca3af;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:not-allowed;opacity:0.65;transition:all 0.2s;">
+              ✅ 확인 적용
+            </button>
           </div>
         </div>
       </div>`;
@@ -5044,10 +5313,178 @@ function renderAdminContent(section) {
     const data=[['3','경북 80년 특별기획 "반도체 금국의 슬픔신, 64K D램" | 대한민국 영광의 20장면 15분','N','2025-11-14'],['2','Build a 65c02-based computer from scratch','N','2025-11-14'],['1','[판관님] 반도채 생산의 비밀병기, "초성밥" 가공 기술 / YTN 사이언스','N','2025-11-14']];
     content.innerHTML=listPage('영상자료실',['No','제목','비무파일','등록일'],data.map(r=>[r[0],`<span style="text-align:left;">${r[1]}</span>`,r[2],r[3]]));
 
-  } else if(['archiveMgmt','linkMgmt','csNotice','csInquiryMember','csInquiryNon','csResearch','csInternal'].includes(section)) {
+  } else if(['archiveMgmt','linkMgmt','csNotice','csInquiryMember','csInquiryNon','csInternal'].includes(section)) {
     const titles={archiveMgmt:'자료실',linkMgmt:'링크모음',csNotice:'공지사항',csInquiryMember:'1대1문의 (회원)',csInquiryNon:'1대1문의 (비회원)',csResearch:'중요문서(연구노트)',csInternal:'사내게시판'};
     const sData=[['5','2025년 금융 컨설팅 트렌드 분석 보고서','N','2025-12-01'],['4','KFPC 서비스 소개 및 활용 가이드','N','2025-11-20'],['3','금융 전문가 양성 프로그램 안내','N','2025-11-10'],['2','4분기 사업 계획서','N','2025-10-30'],['1','창립기념 자료 모음','N','2025-10-01']];
     content.innerHTML=listPage(titles[section],['No','제목','비무파일','등록일'],sData.map(r=>[r[0],r[1],r[2],r[3]]));
+
+  } else if(section==='csResearch') {
+    const crData=[
+      ['27','2026','시점인증테스트','연구실1','전정수','2026-02-25 15:56:24','진행중','2026-02-25'],
+      ['26','2026','반려요 관철','중소기업경영연구소','기업 홈페이지 시스템 관리자','2026-02-23 15:45:39','진행중','2026-02-23'],
+      ['25','2026','비밀유지서약서','중소기업경영연구소','전정수','2026-02-05 19:59:32','진행중','2026-02-05'],
+      ['24','2026','비밀유지서약서','바바★★','전정수','2026-02-04 18:38:13','진행중','2026-02-04'],
+      ['23','2026','ㄷㄷㄷㄷ','ㄷㄷㄷ','전정수','2026-02-04 18:34:17','진행중','2026-02-04'],
+      ['22','2026','ㄱㄱ','중소기업경영연구소','전정수','2026-02-04 11:37:24','진행중','2026-02-04'],
+      ['21','2026','연구노트 프로그램','연구실1','전정수','2026-02-04 10:43:44','진행중','2026-02-04'],
+      ['20','2026','연구노트 자동 생성 및 구조화 프로그램 개발','연구실1','전정수','2026-02-03 13:06:14','진행중','2026-02-03'],
+      ['19','2026','20260129','연구실1','전정수','2026-01-29 13:41:32','진행중','2026-01-29'],
+      ['18','2026','해양드론 연구노트','중소기업경영연구소','박신재','2026-01-27 17:26:13','진행중','2026-01-27'],
+    ];
+    content.innerHTML = [
+      '<h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">시점인증</h3>',
+      '<div style="background:var(--gray-light);border-radius:10px;padding:20px;margin-bottom:20px;">',
+        [['연도검색','전체'],['기간검색','직접입력'],['조건검색','전체']].map(function(lb){
+          return '<div style="display:flex;gap:0;margin-bottom:10px;align-items:center;">' +
+            '<div style="background:var(--admin-sidebar);color:#fff;padding:9px 16px;border-radius:6px 0 0 6px;font-size:13px;font-weight:600;min-width:90px;text-align:center;">' + lb[0] + '</div>' +
+            '<select style="padding:9px 12px;border:1px solid var(--gray-mid);font-size:16px;font-family:Noto Sans KR,sans-serif;border-radius:0 6px 6px 0;"><option>' + lb[1] + '</option></select>' +
+            (lb[0]==='기간검색' ? '<span style="padding:9px 8px;color:var(--gray-dark);">~</span><input type="date" style="padding:8px 12px;border:1px solid var(--gray-mid);border-radius:6px;font-size:16px;">' : '') +
+          '</div>';
+        }).join(''),
+        '<div style="display:flex;gap:8px;margin-top:4px;">',
+          '<button style="padding:9px 24px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">검색</button>',
+          '<button style="padding:9px 12px;background:var(--gray-mid);border:none;border-radius:6px;font-size:13px;cursor:pointer;">&#x21BA;</button>',
+        '</div>',
+      '</div>',
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">',
+        '<span style="font-size:13px;color:var(--gray-dark);">총 게시물수 : 27, 조회게시물수 : 27</span>',
+        '<div style="display:flex;gap:8px;">',
+          '<button style="padding:8px 18px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;" onclick="showToast(\'선택된 항목이 없습니다.\')">선택삭제</button>',
+          '<button id="crRegisterBtn" style="padding:8px 18px;background:var(--primary);color:#fff;border:none;border-radius:5px;font-size:13px;font-weight:600;cursor:pointer;" onclick="adminShowCsWritePopup()">등록</button>',
+        '</div>',
+      '</div>',
+      '<div class="admin-table-wrap"><table class="admin-table">',
+        '<thead><tr><th><input type="checkbox" style="width:16px;height:16px;"></th>',
+        '<th>No</th><th>진행연도</th><th>제목</th><th>부서명</th><th>작성자</th><th>시점인증일자</th><th>상태</th><th>등록일</th><th>관리</th></tr></thead>',
+        '<tbody>',
+        crData.map(function(r, idx2) {
+          var bg = idx2===0 ? 'linear-gradient(90deg,#e8f0fe,#f0f4ff)' : '';
+          return '<tr id="crRow_' + idx2 + '" style="' + (bg?'background:'+bg+';':'') + 'cursor:pointer;" onclick="adminShowCsRowPopup(' + idx2 + ')">' +
+            '<td onclick="event.stopPropagation()"><input type="checkbox" style="width:16px;height:16px;"></td>' +
+            r.map(function(c){ return '<td>' + c + '</td>'; }).join('') +
+            '<td onclick="event.stopPropagation()">' +
+              '<button class="btn-edit" onclick="renderAdmin(\'csResearchWrite\')">수정</button> ' +
+              '<button style="padding:6px 10px;background:#e74c3c;color:#fff;border:none;border-radius:5px;font-size:12px;cursor:pointer;" onclick="showToast(\'삭제되었습니다.\')">삭제</button>' +
+            '</td></tr>';
+        }).join(''),
+        '</tbody></table></div>',
+      '<div style="text-align:center;padding:16px;font-size:14px;color:var(--gray-dark);">1 2 3</div>',
+      '<p style="font-size:12px;color:var(--gray-dark);margin-top:8px;">\'연구개요\'를 작성 및 보관하여 연구개발 활동을 관리. \'시점인증\'이 필요한 연구노트는 인증 후 연구원의 컴퓨터로 다운로드하여 관리</p>'
+    ].join('');
+
+    // 최상단 행 + 등록 버튼 깜빡임 (2초 간격)
+    (function() {
+      var row = document.getElementById('crRow_0');
+      var btn = document.getElementById('crRegisterBtn');
+      if(!row || !btn) return;
+      var on = true;
+      setInterval(function() {
+        on = !on;
+        row.style.background = on ? 'linear-gradient(90deg,#e8f0fe,#f0f4ff)' : 'linear-gradient(90deg,#bfdbfe,#dbeafe)';
+        btn.style.background = on ? 'var(--primary)' : '#2563eb';
+        btn.style.boxShadow  = on ? 'none' : '0 0 10px rgba(37,99,235,0.5)';
+      }, 2000);
+    })();
+
+  } else if(section==='csResearchWrite') {
+    var now2 = new Date().toLocaleString('ko-KR');
+    document.getElementById('adminPageTitle').textContent = '시점인증 등록';
+    content.innerHTML =
+      '<h3 style="font-size:18px;font-weight:700;margin-bottom:24px;color:var(--primary);">시점인증</h3>' +
+      '<div class="admin-form-section"><table style="width:100%;border-collapse:collapse;">' +
+      [
+        ['해당년도*', '<select class="form-control" style="margin:0;max-width:140px;"><option>2026</option><option>2025</option></select>'],
+        ['상태*', '<select class="form-control" style="margin:0;max-width:140px;"><option>진행중</option><option>완료</option></select>'],
+        ['제목*', '<input type="text" class="form-control" style="margin:0;" placeholder="제목을 입력하세요">'],
+        ['작성자명*', '<span style="font-size:14px;">전정수</span>'],
+        ['작성자부서명*', '<input type="text" class="form-control" style="margin:0;" placeholder="부서명 입력">'],
+        ['첨부파일<br><small>(시점인증용)</small>',
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
+          '<input type="file" id="crFile" accept=".pdf" style="display:none">' +
+          '<button class="btn-primary-admin" onclick="document.getElementById(\'crFile\').click()">파일선택</button>' +
+          '<button style="padding:8px 14px;background:var(--gray-mid);border:none;border-radius:6px;font-size:13px;cursor:pointer;" onclick="document.getElementById(\'crFile\').value=\'\'">비우기</button>' +
+          '</div>' +
+          '<div style="font-size:12px;color:var(--gray-dark);margin-top:6px;">* 암PDF 파일로 저장된 파일을 업로드 해 주시기 바랍니다.<br>* 최대 10MB이하의 pdf 파일 1개까지 업로드가 가능합니다.</div>'],
+        ['생성일*', '<span style="font-size:14px;">' + now2 + '</span>'],
+        ['내용*', '<div style="border:1px solid var(--gray-mid);border-radius:8px;min-height:300px;padding:14px;font-size:14px;background:#fff;" contenteditable="true">내용을 입력하세요...</div>']
+      ].map(function(row){ return '<tr><td style="background:var(--admin-sidebar);color:#fff;padding:14px 16px;font-size:13px;font-weight:600;width:140px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);">' + row[0] + '</td><td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);">' + row[1] + '</td></tr>'; }).join('') +
+      '</table>' +
+      '<table style="width:100%;border-collapse:collapse;margin-top:0;">' +
+        '<tr><td style="background:var(--admin-sidebar);color:#fff;padding:14px 16px;font-size:13px;font-weight:600;width:140px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);">공동 작성자 선택</td>' +
+        '<td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);"><div style="display:flex;gap:8px;align-items:center;"><input type="text" placeholder="이름 검색" style="padding:8px 12px;border:1px solid var(--gray-mid);border-radius:6px;font-size:16px;font-family:Noto Sans KR,sans-serif;max-width:200px;"><button style="padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">검색</button></div></td></tr>' +
+        '<tr><td style="background:var(--admin-sidebar);color:#fff;padding:14px 16px;font-size:13px;font-weight:600;width:140px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);">책임자명</td>' +
+        '<td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);"><span style="font-size:14px;">전정수</span></td></tr>' +
+        '<tr><td style="background:var(--admin-sidebar);color:#fff;padding:14px 16px;font-size:13px;font-weight:600;width:140px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);">시점인증 법률규정*<br><small style="font-size:10px;opacity:.8;">(반드시동의하여야합니다)</small></td>' +
+        '<td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);">' +
+          '<div style="font-size:12px;color:#444;line-height:1.8;background:#f8faff;border:1px solid #e0e4ed;border-radius:8px;padding:14px;max-height:180px;overflow-y:auto;">' +
+            '[사용시 유의사항]<br>본 사이트 \'이용약관\' 제11조7항에 의거하여 시점인증 기능 사용에 관한 유의사항을 안내드립니다.<br>' +
+            '1. 연구노트 및 중요문서의 보안을 위해 어떠한 경우에도 서버내에 저장하지 않습니다.<br>' +
+            '2. 사용자의 컴퓨터 내에서 작성하시고 본 페이지에서 내용을 간략하게 작성 후 게시하시기 바랍니다.<br>' +
+            '3. 시점인증이 필요한 연구노트 및 중요문서는 파일첨부를 통해 진행하실 수 있습니다.<br>' +
+            '4. 시점인증 완료 후 암호화된 파일이 사용자의 컴퓨터로 다운로드 됩니다.' +
+          '</div>' +
+          '<label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer;">' +
+            '<input type="checkbox" id="crAgree2" style="width:16px;height:16px;">*상기 내용에 대하여 충분히 인지하였고 동의합니다.' +
+          '</label>' +
+        '</td></tr>' +
+      '</table>' +
+      '<div style="display:flex;justify-content:center;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-mid);">' +
+        '<button style="padding:12px 32px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;" onclick="renderAdmin(\'csResearch\')">취소</button>' +
+        '<button class="btn-primary-admin" onclick="if(!document.getElementById(\'crAgree2\').checked){showToast(\'⚠️ 시점인증 법률규정에 동의해 주세요.\');return;}showToast(\'✅ 시점인증 등록 완료\');renderAdmin(\'csResearch\');">등록완료</button>' +
+      '</div></div>';
+
+  } else if(section.startsWith('csResearchView_')) {
+    var vIdx = parseInt(section.split('_')[1]) || 0;
+    var vData = [
+      ['27','2026','시점인증테스트','연구실1','전정수','2026-02-25 15:56:24','2026-02-25 15:56:24'],
+      ['26','2026','반려요 관철','중소기업경영연구소','기업 홈페이지 시스템 관리자','2026-02-23 15:45:39','2026-02-23'],
+      ['25','2026','비밀유지서약서','중소기업경영연구소','전정수','2026-02-05 19:59:32','2026-02-05'],
+    ];
+    var v = vData[vIdx] || vData[0];
+    document.getElementById('adminPageTitle').textContent = '시점인증 상세';
+    content.innerHTML =
+      '<h3 style="font-size:18px;font-weight:700;margin-bottom:24px;color:var(--primary);">시점인증</h3>' +
+      '<div class="admin-form-section"><table style="width:100%;border-collapse:collapse;">' +
+      [
+        ['해당년도*', '<select class="form-control" style="margin:0;max-width:140px;"><option>' + v[1] + '</option></select>'],
+        ['상태*', '<select class="form-control" style="margin:0;max-width:140px;"><option>진행중</option><option>완료</option></select>'],
+        ['연구노트명*', '<span style="font-size:14px;">' + v[2] + '</span>'],
+        ['작성자명*', '<span style="font-size:14px;">' + v[4] + '</span>'],
+        ['작성자부서명*', '<span style="font-size:14px;">' + v[3] + '</span>'],
+        ['TSA토큰', '<div style="font-size:11px;word-break:break-all;background:#f1f5f9;padding:10px;border-radius:6px;color:#334155;line-height:1.6;max-height:120px;overflow-y:auto;">MIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEzMIIJEwYJKoZIhvcNAQcCoIIJBDCCCQACEAxEzDzANBglghkgBZQMEAgEFADCBxAYLKoZIhvcNAQkAQSggbQEgbEwga4CAEAxEAxEz...</div>'],
+        ['인증파일다운로드 일시', '<span style="font-size:14px;">' + v[5] + '</span>'],
+        ['생성일*', '<span style="font-size:14px;">' + v[5] + '</span>'],
+        ['수정일', '<span style="font-size:14px;">' + v[6] + '</span>'],
+      ].map(function(row){ return '<tr><td style="background:var(--admin-sidebar);color:#fff;padding:14px 16px;font-size:13px;font-weight:600;width:160px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);">' + row[0] + '</td><td style="padding:12px 16px;border-bottom:1px solid var(--gray-mid);">' + row[1] + '</td></tr>'; }).join('') +
+      '</table>' +
+      '<div style="margin-top:16px;border:1px solid var(--gray-mid);border-radius:8px;overflow:hidden;">' +
+        '<div style="background:#f8faff;padding:8px 12px;border-bottom:1px solid var(--gray-mid);font-size:12px;color:#64748b;display:flex;gap:8px;">' +
+          '<span style="padding:3px 8px;background:#e0e4ed;border-radius:4px;cursor:pointer;font-weight:700;">B</span>' +
+          '<span style="padding:3px 8px;background:#e0e4ed;border-radius:4px;cursor:pointer;font-style:italic;">I</span>' +
+          '<span style="padding:3px 8px;background:#e0e4ed;border-radius:4px;cursor:pointer;text-decoration:underline;">U</span>' +
+        '</div>' +
+        '<div style="min-height:180px;padding:16px;font-size:14px;" contenteditable="true">게시글 내용이 여기에 표시됩니다.</div>' +
+      '</div>' +
+      '<div style="margin-top:16px;border:1px solid var(--gray-mid);border-radius:8px;padding:14px;">' +
+        '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
+          '<button class="btn-primary-admin" style="font-size:12px;padding:7px 14px;">파일 선택</button>' +
+          '<span style="font-size:12px;color:#64748b;">선택된 파일 없음</span>' +
+          '<button style="padding:7px 14px;background:var(--gray-mid);border:none;border-radius:6px;font-size:12px;cursor:pointer;">비우기</button>' +
+        '</div>' +
+        '<div style="font-size:12px;color:#64748b;">* 암PDF 파일로 저장된 파일을 업로드 해 주시기 바랍니다.</div>' +
+        '<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--gray-mid);">' +
+          '<div style="display:flex;gap:8px;align-items:center;">' +
+            '<button class="btn-primary-admin" style="font-size:12px;padding:7px 14px;">파일 선택</button>' +
+            '<span style="font-size:12px;color:#64748b;">선택된 파일 없음</span>' +
+            '<button style="padding:7px 14px;background:var(--gray-mid);border:none;border-radius:6px;font-size:12px;cursor:pointer;">비우기</button>' +
+          '</div>' +
+          '<div style="font-size:12px;color:#64748b;margin-top:4px;">* 암호화파일 업로드 영역</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:center;gap:12px;margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-mid);">' +
+        '<button style="padding:12px 32px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;" onclick="renderAdmin(\'csResearch\')">← 목록</button>' +
+        '<button class="btn-primary-admin" onclick="showToast(\'✅ 수정 완료\');renderAdmin(\'csResearch\');">수정완료</button>' +
+      '</div></div>';
 
   } else if(section==='nationDev') {
     const data=[['27','2026','시점인증테스트','연구실1','전정수','2026-02-25 15:56:24','신청중','2026-02-25'],['26','2026','번이번 간헤','중소기업경영연구소','기업 홈페이지 시스템 관리자','2026-02-23 15:45:39','신청중','2026-02-23'],['25','2026','바림유자싸다서','중소기업경영연구소','전정수','2026-02-05 10:59:32','신청중','2026-02-05'],['24','2026','바림유자싸다서','중소기업경영연구소','전정수','2026-02-04 18:38:13','신청중','2026-02-04']];
@@ -5316,24 +5753,38 @@ function openImgEditModal(type, title) {
 
   // 현재 적용된 이미지 URL
   const cfg = getSavedConfig();
-  const currentUrl = type === 'mainVisual'
-    ? 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80'
-    : 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80';
+  const defaultUrls = {
+    mainVisual:   'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
+    companyPhoto: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=900&q=80',
+  };
+  const cfgKeys = { mainVisual:'heroMainImg', companyPhoto:'companyImg' };
+  const currentUrl = cfg[cfgKeys[type]] || defaultUrls[type];
+
+  // 임시 선택 초기화
+  window._pendingImg = null;
+  const btn = document.getElementById('imgConfirmBtn');
+  if(btn) { btn.disabled = true; btn.style.background = '#9ca3af'; btn.style.opacity = '0.65'; btn.style.cursor = 'not-allowed'; }
 
   const grid = document.getElementById('imgChoiceGrid');
-  grid.innerHTML = pool.map((img, i) => {
-    const isActive = (cfg[type === 'mainVisual' ? 'heroMainImg' : 'companyImg'] || currentUrl) === img.url;
+  grid.innerHTML = pool.map((img) => {
+    const isActive = currentUrl === img.url;
+    const safeUrl  = img.url.replace(/'/g,"\\'");
+    const safeLabel = img.label.replace(/'/g,"\\'");
     return `
-    <div onclick="applyImg('${type}','${img.url}',this)"
-         style="cursor:pointer;border-radius:12px;overflow:hidden;border:3px solid ${isActive ? '#2563eb' : '#e0e4ed'};
-                transition:border-color .2s,box-shadow .2s;box-shadow:${isActive ? '0 0 0 3px rgba(37,99,235,0.25)' : 'none'};"
-         class="img-choice-card">
+    <div onclick="applyImg('${type}','${safeUrl}',this)"
+         class="img-choice-card"
+         data-current="${isActive ? '1' : '0'}"
+         data-label="${safeLabel}"
+         style="cursor:pointer;border-radius:12px;overflow:hidden;position:relative;
+                border:3px solid ${isActive ? '#2563eb' : '#e0e4ed'};
+                transition:all .2s;
+                box-shadow:${isActive ? '0 0 0 4px rgba(37,99,235,0.22)' : 'none'};">
+      ${isActive ? `<div style="position:absolute;top:7px;right:7px;background:#2563eb;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:2;letter-spacing:0.3px;">현재</div>` : ''}
       <img src="${img.url}" alt="${img.label}"
-           style="width:100%;height:150px;object-fit:cover;display:block;"
-           loading="lazy"/>
-      <div style="padding:10px 12px;background:${isActive ? '#eff6ff' : '#f8faff'};">
-        <div style="font-size:12px;font-weight:700;color:${isActive ? '#2563eb' : '#1a2e5a'};margin-bottom:3px;">
-          ${isActive ? '✅ ' : ''}${img.label}
+           style="width:100%;height:160px;object-fit:cover;display:block;" loading="lazy"/>
+      <div class="img-choice-bottom" style="padding:10px 12px;background:${isActive ? '#eff6ff' : '#f8faff'};">
+        <div class="img-choice-name" style="font-size:12px;font-weight:700;color:${isActive ? '#2563eb' : '#555'};margin-bottom:3px;">
+          ${isActive ? '✅ 현재 적용 중' : img.label}
         </div>
         <div style="font-size:11px;color:#94a3b8;">${img.tag}</div>
       </div>
@@ -5341,75 +5792,210 @@ function openImgEditModal(type, title) {
   }).join('');
 
   window._imgModalType = type;
-  const modal = document.getElementById('imgEditModal');
-  modal.style.display = 'flex';
+  document.getElementById('imgEditModal').style.display = 'flex';
 }
 
 function closeImgEditModal() {
   document.getElementById('imgEditModal').style.display = 'none';
 }
 
+// 현재 모달에서 선택된 이미지 정보 임시 보관
+let _pendingImgType = null;
+let _pendingImgUrl  = null;
+
+// 현재 선택된 이미지 임시 저장
+window._pendingImg = null;
+
 function applyImg(type, url, cardEl) {
-  // 카드 선택 표시 갱신
+  // ── 모든 카드 선택 해제 (단일 선택 보장) ──
   document.querySelectorAll('.img-choice-card').forEach(c => {
     c.style.borderColor = '#e0e4ed';
-    c.style.boxShadow = 'none';
-    const lbl = c.querySelector('div > div:first-child');
-    if(lbl) { lbl.style.color = '#1a2e5a'; lbl.textContent = lbl.textContent.replace('✅ ',''); }
-    c.querySelector('div').style.background = '#f8faff';
+    c.style.boxShadow   = 'none';
+    c.style.transform   = 'scale(1)';
+    const nm = c.querySelector('.img-choice-name');
+    const lb = c.querySelector('.img-choice-bottom');
+    const tag = c.querySelector('.img-choice-tag');
+    if(lb) lb.style.background = '#f8faff';
+    if(nm) { nm.style.color = '#1a2e5a'; }
+    // 현재 적용 중 텍스트 복원은 data 속성으로
+    if(nm && c.dataset.current === '1') nm.textContent = '현재 적용 중';
+    else if(nm && c.dataset.label) nm.textContent = c.dataset.label;
   });
-  cardEl.style.borderColor = '#2563eb';
-  cardEl.style.boxShadow = '0 0 0 3px rgba(37,99,235,0.25)';
-  const lbl = cardEl.querySelector('div > div:first-child');
-  if(lbl) { lbl.style.color = '#2563eb'; if(!lbl.textContent.includes('✅')) lbl.textContent = '✅ 현재 적용 중 ✓'; }
-  cardEl.querySelector('div').style.background = '#eff6ff';
 
-  // config에 저장
-  config = getSavedConfig();
-  if(type === 'mainVisual') {
-    config.heroMainImg = url;
-    // 메인 슬라이더 이미지 반영
-    const imgEl = document.getElementById('slide-company-img');
-    if(imgEl) imgEl.src = url;
-    // intro section 이미지 반영 (회사 소개 이미지도 같이 반영)
-    const introBg = document.getElementById('introImgBg');
-    if(introBg) {
-      const existImg = introBg.querySelector('img');
-      if(existImg) existImg.src = url;
-      else introBg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />`;
-    }
-  } else if(type === 'companyPhoto') {
-    config.companyImg = url;
-    // 회사소개(intro) 이미지 반영
-    const introBg = document.getElementById('introImgBg');
-    if(introBg) {
-      const existImg = introBg.querySelector('img');
-      if(existImg) existImg.src = url;
-      else introBg.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit;" />`;
-    }
-    // renderCompanyPage 이미지 반영
-    const compImg = document.querySelector('.company-greeting-img img');
-    if(compImg) compImg.src = url;
+  // ── 선택한 카드 강조 ──
+  cardEl.style.borderColor = '#2563eb';
+  cardEl.style.boxShadow   = '0 0 0 4px rgba(37,99,235,0.22)';
+  cardEl.style.transform   = 'scale(1.03)';
+  const nm = cardEl.querySelector('.img-choice-name');
+  const lb = cardEl.querySelector('.img-choice-bottom');
+  if(lb) lb.style.background = '#eff6ff';
+  if(nm) { nm.style.color = '#2563eb'; nm.textContent = '✅ 선택됨'; }
+
+  // ── 임시 저장 ──
+  window._pendingImg = { type, url };
+
+  // ── 확인 적용 버튼 활성화 ──
+  const btn = document.getElementById('imgConfirmBtn');
+  if(btn) {
+    btn.disabled            = false;
+    btn.style.background    = 'linear-gradient(135deg,#1a2e5a,#2563eb)';
+    btn.style.opacity       = '1';
+    btn.style.cursor        = 'pointer';
+    btn.style.pointerEvents = 'auto';
   }
-  saveConfig(config);
-  showToast('✅ 이미지가 메인 화면에 반영되었습니다!');
 }
 
-function toggleImageSelect(idx) {
-  const imgNum = idx+1;
-  const pos = config.heroSlides.indexOf(imgNum);
-  if(pos >= 0) {
-    if(config.heroSlides.length > 1) config.heroSlides.splice(pos, 1);
-  } else {
-    if(config.heroSlides.length < 3) config.heroSlides.push(imgNum);
-    else { showToast('최대 3개까지 선택 가능합니다.'); return; }
+function confirmImgApply() {
+  // window._pendingImg 에서 읽기 (applyImg 에서 저장한 곳)
+  const pending = window._pendingImg;
+  if(!pending || !pending.type || !pending.url) {
+    showToast('⚠️ 이미지를 먼저 선택해주세요.');
+    return;
   }
+  const { type, url } = pending;
+  config = getSavedConfig();
+
+  if(type === 'mainVisual') {
+    config.heroMainImg = url;
+    const img = document.getElementById('introCompanyImg');
+    if(img) img.src = url;
+  } else if(type === 'companyPhoto') {
+    config.companyImg = url;
+    const img = document.getElementById('introCompanyImg');
+    if(img) img.src = url;
+    const compImg = document.querySelector('.company-greeting-img img');
+    if(compImg) compImg.src = url;
+  } else if(type === 'slide5') {
+    if(!config.slideImages) config.slideImages = [];
+    while(config.slideImages.length < 5) config.slideImages.push({});
+    config.slideImages[4] = Object.assign({}, config.slideImages[4] || {}, { photoUrl: url });
+  } else if(type === 'slide6') {
+    if(!config.slideImages) config.slideImages = [];
+    while(config.slideImages.length < 6) config.slideImages.push({});
+    config.slideImages[5] = Object.assign({}, config.slideImages[5] || {}, { photoUrl: url });
+  }
+
+  saveConfig(config);
+  try { renderMain(); } catch(e) {
+    try { renderSlider(); } catch(e2){}
+    try { renderIntro(); } catch(e2){}
+  }
+  window._pendingImg = null;
+  closeImgEditModal();
+  showToast('✅ 이미지가 메인 화면에 적용되었습니다!');
+}
+
+
+// 슬라이드 3개 고정 — 슬롯(slot:0~2)에 이미지번호 교체
+function swapSlideImage(slotIdx, imgNum) {
+  if(!config.heroSlides) config.heroSlides = [1,2,3];
+  while(config.heroSlides.length < 3) config.heroSlides.push(slotIdx+1);
+  config.heroSlides[slotIdx] = imgNum;
+}
+function toggleImageSelect(idx) {
+  // 하위 호환 유지 — 슬롯 선택 방식으로 변경되어 직접 호출되지 않음
+}
+
+// ── 슬라이드 교체 모달 함수 ──
+function openSlideSwapModal(slotIdx) {
+  const pool = window._slidePool || [];
+  const cfg  = getSavedConfig();
+  const slots = (cfg.heroSlides && cfg.heroSlides.length >= 3) ? cfg.heroSlides.slice(0,3) : [1,2,3];
+  const currentImgNum = slots[slotIdx] || (slotIdx+1);
+
+  document.getElementById('swapModalTitle').textContent =
+    '슬라이드 ' + (slotIdx+1) + '번째 \u2014 배경 이미지 교체';
+
+  window._swapSlotIdx = slotIdx;
+  window._swapPending = null;
+
+  const btn = document.getElementById('swapConfirmBtn');
+  if(btn){ btn.disabled=true; btn.style.background='#9ca3af'; btn.style.opacity='0.6'; btn.style.cursor='not-allowed'; }
+
+  const icons = {neural:'🧠',data:'📊',grid:'🔲',particle:'✨',wave:'🌊',aurora:'🌌'};
+  const grid = document.getElementById('swapChoiceGrid');
+  grid.innerHTML = pool.map(function(img) {
+    const isCurrent = img.imgNum === currentImgNum;
+    return '<div onclick="selectSwapCard(' + img.imgNum + ',this)"' +
+      ' class="swap-choice-card"' +
+      ' data-imgnum="' + img.imgNum + '"' +
+      ' data-current="' + (isCurrent?'1':'0') + '"' +
+      ' data-label="' + img.label + '"' +
+      ' style="cursor:pointer;border-radius:12px;overflow:hidden;position:relative;' +
+        'border:3px solid ' + (isCurrent?'#2563eb':'#e0e4ed') + ';' +
+        'transition:all .2s;' +
+        'box-shadow:' + (isCurrent?'0 0 0 4px rgba(37,99,235,0.22)':'none') + ';">' +
+      (isCurrent ? '<div style="position:absolute;top:7px;right:7px;background:#2563eb;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:2;">현재</div>' : '') +
+      '<div style="height:120px;display:flex;align-items:center;justify-content:center;background:' + img.preview + ';position:relative;">' +
+        '<span style="font-size:32px;">' + (icons[img.type]||'🖼') + '</span>' +
+        '<div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);' +
+             'background:' + img.dot + ';border-radius:3px;height:4px;width:40%;opacity:0.9;"></div>' +
+      '</div>' +
+      '<div class="swap-card-bottom" style="padding:9px 11px;background:' + (isCurrent?'#eff6ff':'#f8faff') + ';">' +
+        '<div class="swap-card-name" style="font-size:12px;font-weight:700;color:' + (isCurrent?'#2563eb':'#374151') + ';margin-bottom:2px;">' +
+          (isCurrent ? '현재 적용 중' : img.label) +
+        '</div>' +
+        '<div style="font-size:11px;color:#94a3b8;">' + img.tag + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('slideSwapModal').style.display = 'flex';
+}
+
+function selectSwapCard(imgNum, cardEl) {
+  document.querySelectorAll('.swap-choice-card').forEach(function(c) {
+    c.style.borderColor = '#e0e4ed';
+    c.style.boxShadow   = 'none';
+    c.style.transform   = 'scale(1)';
+    const nm = c.querySelector('.swap-card-name');
+    const bt = c.querySelector('.swap-card-bottom');
+    if(bt) bt.style.background = '#f8faff';
+    if(nm) { nm.style.color='#374151'; nm.textContent = c.dataset.current==='1' ? '현재 적용 중' : c.dataset.label; }
+  });
+  cardEl.style.borderColor = '#2563eb';
+  cardEl.style.boxShadow   = '0 0 0 4px rgba(37,99,235,0.22)';
+  cardEl.style.transform   = 'scale(1.03)';
+  const nm = cardEl.querySelector('.swap-card-name');
+  const bt = cardEl.querySelector('.swap-card-bottom');
+  if(bt) bt.style.background = '#eff6ff';
+  if(nm) { nm.style.color='#2563eb'; nm.textContent='✅ 선택됨'; }
+  window._swapPending = imgNum;
+  const btn = document.getElementById('swapConfirmBtn');
+  if(btn){ 
+    btn.disabled=false; 
+    btn.style.background='linear-gradient(135deg,#1a2e5a,#2563eb)'; 
+    btn.style.opacity='1'; 
+    btn.style.cursor='pointer';
+    btn.onclick = function(){ confirmSlideSwap(window._swapSlotIdx); };
+  }
+}
+
+function confirmSlideSwap(passedSlotIdx) {
+  const slotIdx = (passedSlotIdx !== undefined && passedSlotIdx !== null) ? passedSlotIdx : window._swapSlotIdx;
+  const imgNum  = window._swapPending;
+  if(imgNum == null || slotIdx == null || slotIdx === undefined) { showToast('⚠️ 이미지를 먼저 선택해주세요.'); return; }
+  config = getSavedConfig();
+  if(!config.heroSlides || config.heroSlides.length < 3) config.heroSlides = [1,2,3];
+  config.heroSlides[slotIdx] = imgNum;
+  config.heroSlides = config.heroSlides.slice(0,3);
+  saveConfig(config);
+  closeSlideSwapModal();
+  showToast('✅ 슬라이드 ' + (slotIdx+1) + '번째 이미지 교체 완료! 메인화면에 즉시 반영됩니다.');
   renderAdmin('imageMgmt');
+}
+
+
+function closeSlideSwapModal() {
+  document.getElementById('slideSwapModal').style.display = 'none';
+  window._swapPending = null;
+  window._swapSlotIdx = null;
 }
 
 function saveSlideImages() {
   saveConfig(config);
-  showToast('✅ 슬라이드 이미지 저장 완료');
+  try { renderMain(); } catch(e) {}
+  showToast('✅ 슬라이드 저장 완료 — 메인 화면에 적용되었습니다!');
 }
 
 function saveIntro() {
@@ -5608,14 +6194,14 @@ function confirmCheckout() {
     const _origSaveConfig = saveConfig;
     window.saveConfig = function(cfg) {
       _origSaveConfig(cfg);
-      // ① 같은 창이 main-site를 가지고 있는 경우 직접 재렌더
+      // ① 같은 창이 main-site를 가지고 있는 경우 직접 재렌더 (visible할 때만)
       const mainSite = document.getElementById('main-site');
-      if(mainSite) {
-        try { renderMain(); } catch(e){}
+      if(mainSite && mainSite.style.display !== 'none') {
+        try { renderMain(); setTimeout(function(){ try{renderSlider();}catch(e){} }, 150); } catch(e){}
       }
       // ② opener(부모 창)가 있으면 재렌더
       if(window.opener && !window.opener.closed) {
-        try { window.opener.renderMain(); } catch(e){}
+        try { window.opener.renderMain(); setTimeout(function(){ try{window.opener.renderSlider();}catch(e){} }, 150); } catch(e){}
       }
       // ③ BroadcastChannel이 있으면 동일 도메인 모든 탭에 브로드캐스트
       try {
@@ -5639,7 +6225,10 @@ function confirmCheckout() {
     try {
       const bc = new BroadcastChannel('kfpc_sync');
       bc.onmessage = function(e) {
-        if(e.data && e.data.type === 'config_updated') renderMain();
+        if(e.data && e.data.type === 'config_updated') {
+          renderMain();
+          setTimeout(function(){ try{renderSlider();}catch(e){} }, 150);
+        }
       };
     } catch(e) {}
   }
@@ -5741,6 +6330,72 @@ function openAdminWorkLog() {
     adminPage.style.display = 'block';
     renderAdmin('workLog');
   }
+}
+
+function showCsResearchPopup() {
+  showInfoPopup(
+    '📄 시점인증 파일 안내',
+    '<p style="line-height:2;font-size:14px;color:#374151;">' +
+    '시점인증 받은 파일은 <strong style="color:#1a2e5a;">책임자(혹은 연구원)</strong>가 ' +
+    '다운로드 받아 사용자의 컴퓨터에 보관할 수 있으며 당사의 서버에는 시점인증 스탬프가 찍힌 원본파일을 보관하지 않습니다.<br><br>' +
+    '<span style="background:#f0fdf4;border-radius:8px;padding:10px 14px;display:block;border-left:4px solid #16a34a;font-size:13px;color:#166534;">' +
+    '🔐 시점인증 원본의 암호화 파일만 보관 — 해킹 원천차단' +
+    '</span></p>'
+  );
+}
+
+function showCsWritePopup() {
+  showInfoPopup(
+    '📁 등록 전 확인사항',
+    '<ol style="padding-left:18px;line-height:2;font-size:14px;color:#374151;">' +
+    '<li><strong>워드문서</strong>로 작성된 파일을 <strong style="color:#1a2e5a;">pdf 파일로 변환</strong> 후 업로드 진행 바랍니다.' +
+    '<br><span style="font-size:12px;color:#dc2626;">(pdf 변환시 낮은 버전으로 저장요망)</span></li>' +
+    '<li>시점인증 완료되면 <strong>목록을 클릭</strong> 후 첨부된 파일을 다운받아 보관 바랍니다.' +
+    '<br><span style="font-size:12px;color:#dc2626;">(당사 서버에는 시점인증된 원본 파일을 보관하지 않습니다.)</span></li>' +
+    '</ol>'
+  );
+}
+
+function adminShowCsResearch() {
+  showInfoPopup(
+    '📋 중요문서(연구노트) 안내',
+    '<p style="line-height:2;font-size:14px;color:#374151;">' +
+    '회사의 중요문서(연구노트, 근로계약서, 협약서, 견적서 등...)를 ' +
+    '<strong style="color:#1a2e5a;">시점인증 받은 후 보관</strong>하면 쟁송시 법률적으로 보호를 받을 수 있습니다.<br><br>' +
+    '<span style="background:#eff6ff;border-radius:8px;padding:10px 14px;display:block;border-left:4px solid #2563eb;font-size:13px;color:#1e3a8a;">' +
+    '⚖️ 해당 시점에 문서사실 존재가 <strong>법적으로 확인 증명</strong> 됩니다.' +
+    '</span></p>',
+    '확인',
+    function() { renderAdmin('csResearch'); }
+  );
+}
+
+function adminShowCsRowPopup(idx) {
+  showInfoPopup(
+    '📄 시점인증 파일 안내',
+    '<p style="line-height:2;font-size:14px;color:#374151;">' +
+    '시점인증 받은 파일은 <strong style="color:#1a2e5a;">책임자(혹은 연구원)</strong>가 ' +
+    '다운로드 받아 사용자의 컴퓨터에 보관할 수 있으며 당사의 서버에는 시점인증 스탬프가 찍힌 원본파일을 보관하지 않습니다.<br><br>' +
+    '<span style="background:#f0fdf4;border-radius:8px;padding:10px 14px;display:block;border-left:4px solid #16a34a;font-size:13px;color:#166534;">' +
+    '🔐 시점인증 원본의 암호화 파일만 보관 — 해킹 원천차단' +
+    '</span></p>',
+    '확인',
+    function() { renderAdmin('csResearchView_' + idx); }
+  );
+}
+
+function adminShowCsWritePopup() {
+  showInfoPopup(
+    '📁 등록 전 확인사항',
+    '<ol style="padding-left:18px;line-height:2;font-size:14px;color:#374151;">' +
+    '<li><strong>워드문서</strong>로 작성된 파일을 <strong style="color:#1a2e5a;">pdf 파일로 변환</strong> 후 업로드 진행 바랍니다.' +
+    '<br><span style="font-size:12px;color:#dc2626;">(pdf 변환시 낮은 버전으로 저장요망)</span></li>' +
+    '<li>시점인증 완료되면 <strong>목록을 클릭</strong> 후 첨부된 파일을 다운받아 보관 바랍니다.' +
+    '<br><span style="font-size:12px;color:#dc2626;">(당사 서버에는 시점인증된 원본 파일을 보관하지 않습니다.)</span></li>' +
+    '</ol>',
+    '확인',
+    function() { renderAdmin('csResearchWrite'); }
+  );
 }
 </script>
 </body>
