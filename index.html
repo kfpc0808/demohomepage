@@ -799,6 +799,22 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
   position:sticky; top:0; z-index:50;
 }
 .admin-topbar h2 { font-size:18px; font-weight:700; color:var(--primary); }
+#adminMobileHamBtn {
+  display:none; align-items:center; justify-content:center;
+  width:40px; height:40px; background:none; border:1.5px solid var(--gray-mid);
+  border-radius:8px; cursor:pointer; flex-shrink:0;
+}
+#adminMobileHamBtn span {
+  display:block; width:18px; height:2px; background:var(--primary);
+  border-radius:2px; position:relative;
+}
+#adminMobileHamBtn span::before,
+#adminMobileHamBtn span::after {
+  content:''; position:absolute; width:18px; height:2px;
+  background:var(--primary); border-radius:2px; left:0;
+}
+#adminMobileHamBtn span::before { top:-6px; }
+#adminMobileHamBtn span::after { top:6px; }
 .admin-body { padding:32px; }
 
 /* ADMIN TABLE */
@@ -952,6 +968,26 @@ input, select, textarea { font-size:16px !important; }
   .main-nav { display:none; }
   .dash-stats { grid-template-columns:repeat(2,1fr); }
 
+  /* ===== ADMIN MOBILE RESPONSIVE ===== */
+  .admin-sidebar {
+    width:280px; 
+    transform:translateX(-100%);
+    transition:transform 0.3s ease;
+    z-index:1000;
+  }
+  .admin-sidebar.mobile-open { transform:translateX(0); }
+  .admin-main { margin-left:0 !important; }
+  .admin-topbar { padding:0 12px; gap:8px; }
+  .admin-topbar h2 { font-size:14px; }
+  .admin-body { padding:16px 12px; }
+  .admin-table { font-size:12px; }
+  .admin-table th { padding:10px 8px; font-size:11px; }
+  .admin-table td { padding:8px 6px; font-size:12px; }
+  .admin-table input { padding:6px 8px; font-size:12px; }
+  .admin-form-section { padding:20px 14px; }
+  .dash-stat-card { padding:18px 14px; }
+  .dash-stat-card .num { font-size:26px; }
+
   /* HEADER */
   .header-inner { padding:0 16px; height:60px; }
   .hero-slider { margin-top:60px; height:320px; }
@@ -1039,6 +1075,16 @@ input, select, textarea { font-size:16px !important; }
   .info-confirm-list { padding:16px 20px 6px; }
   .info-confirm-btns { padding:12px 20px 18px; }
   .info-confirm-free { margin:10px 20px 4px; }
+
+  /* ADMIN MOBILE OVERLAY & TOGGLE */
+  .admin-mobile-overlay {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.5); z-index:999;
+  }
+  .admin-mobile-overlay.active { display:block; }
+  #adminMobileHamBtn { display:flex !important; }
+  #adminSignalBanner { padding:8px 12px !important; }
+  #adminSignalBanner span { font-size:11px !important; }
 }
 
 /* ── 480px (small phones) ── */
@@ -1316,9 +1362,134 @@ img, video, iframe { max-width:100%; height:auto; }
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           실고객기업
         </a>
+        <a href="javascript:void(0)" onclick="document.getElementById('guidePopupOverlay').style.display='flex'" style="display:inline-flex; align-items:center; gap:8px; background:#2e7d32; color:#fff; text-decoration:none; padding:13px 28px; border-radius:8px; font-size:14px; font-weight:600; letter-spacing:0.3px; transition:background 0.2s; white-space:nowrap;" onmouseover="this.style.background='#43a047'" onmouseout="this.style.background='#2e7d32'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          데모버전 이용가이드
+        </a>
       </div>
     </div>
   </section>
+
+<!-- ============================================================
+     데모버전 이용가이드 팝업
+============================================================ -->
+<div id="guidePopupOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:100000; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;">
+  <div style="background:#fff; border-radius:16px; max-width:800px; width:100%; max-height:85vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); position:relative;">
+    <!-- 헤더 -->
+    <div style="background:linear-gradient(135deg,#1a2e5a,#2c5f8a); color:#fff; padding:28px 32px 24px; border-radius:16px 16px 0 0; position:sticky; top:0; z-index:1;">
+      <button onclick="document.getElementById('guidePopupOverlay').style.display='none'" style="position:absolute; top:16px; right:20px; background:rgba(255,255,255,0.2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.35)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
+      <h2 style="margin:0 0 4px; font-size:22px; font-weight:800; letter-spacing:0.5px;">📋 데모버전 이용가이드</h2>
+      <p style="margin:0; font-size:13px; opacity:0.85;">기업전용 홈페이지 시스템 (데모버전)</p>
+    </div>
+    <!-- 본문 -->
+    <div style="padding:28px 32px 36px; line-height:1.85; color:#333; font-size:14px;">
+
+      <div style="background:#eef3fb; border-left:4px solid #2c5f8a; padding:16px 20px; border-radius:0 8px 8px 0; margin-bottom:28px;">
+        <strong style="color:#1a2e5a;">이 데모버전 홈페이지는 무엇인가?</strong><br>
+        이 홈페이지는 <em>'기업전용 홈페이지 시스템'</em>과 90% 이상 유사한 모습으로 재현한 것이며, 주요한 몇몇 기능들을 쉬운 방법으로 시연할 수 있도록 만든 데모버전 시스템입니다. 메뉴, 페이지명 등을 클릭할 때마다 간단한 팝업이 나오고, 관리자 페이지에서는 일부 메뉴를 직접 수정하여 메인 화면에 즉시 반영되는 것을 확인할 수 있습니다.
+      </div>
+
+      <!-- 관리자 페이지 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">🔐 관리자 페이지 접속 방법</h3>
+      <p>화면 우측 상단의 <span style="background:#1a2e5a; color:#fff; padding:2px 10px; border-radius:4px; font-size:12px; font-weight:600;">로그인</span> 버튼을 클릭하면 관리자 페이지로 이동합니다. 관리자 페이지에서는 홈페이지의 주요 내용들을 수정·관리할 수 있습니다.</p>
+
+      <!-- 수정/실행 가능 항목 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">✅ 데모버전에서 수정/실행 가능한 항목들</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">1. 상단 슬라이드 변경</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">2. 회사소개글</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">3. CEO 인사말</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">4. 하단푸터(회사정보)</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">5. 출퇴근 버튼</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">6. 카톡버튼</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">7. 더보기(화면하단) 버튼</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a;">8. ESG경영 페이지</div>
+        <div style="background:#f0f7ff; padding:10px 14px; border-radius:8px; font-size:13px; font-weight:600; color:#1a2e5a; grid-column:1/-1;">9. 실제 홈페이지 보기 버튼(화면하단)</div>
+      </div>
+
+      <!-- 메뉴 변경 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">📝 메뉴명 변경</h3>
+      <div style="display:grid; gap:12px;">
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">메인 메뉴명 변경</strong><br>
+          상단 네비게이션에 표시되는 메뉴 이름을 변경할 수 있습니다. 현재 기본 메뉴는 소개, 비즈니스, 뉴스&amp;홍보, 콘텐츠/링크, 고객센터로 구성되어 있으며, 회사 특성에 맞게 자유롭게 변경 가능합니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">서브 메뉴명 변경</strong><br>
+          각 메인 메뉴 하위에 있는 서브 메뉴명도 개별 변경할 수 있습니다. 예를 들어 소개 메뉴 아래의 회사/연구소소개, CEO인사말, ESG경영, 조직도, 경쟁력/전문성 등의 명칭을 원하는 이름으로 수정할 수 있습니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">관리자 메뉴명 변경</strong><br>
+          관리자 페이지 내 좌측 사이드바에 표시되는 메뉴명도 변경할 수 있습니다. 내부 운영 방식에 맞게 관리자 전용 메뉴 이름을 조정하는 기능입니다.
+        </div>
+      </div>
+
+      <!-- 홈페이지 메인 관리 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">🏠 홈페이지 메인 관리</h3>
+      <div style="display:grid; gap:12px;">
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">SEO 정보 관리</strong><br>
+          하단정보관리를 통해 내용을 수정하면 회사정보가 변경됩니다. (메인화면 하단 푸터)
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">팝업관리</strong><br>
+          홈페이지 접속 시 화면에 나타나는 팝업은 샘플입니다. 실제 홈페이지의 관리자페이지에서는 수정이 가능합니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">메인 슬라이드 이미지 변경</strong><br>
+          메인 화면 상단 히어로 슬라이더에 표시되는 3개의 슬라이드 이미지를 변경할 수 있습니다. (모든 페이지의 이미지를 실제 홈페이지에서는 변경할 수 있습니다.)
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">회사/연구소 소개 변경</strong><br>
+          회사 및 연구소를 소개하는 텍스트 내용을 데모버전의 관리자페이지에서도 직접 수정할 수 있습니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">CEO 인사말 변경</strong><br>
+          대표이사 인사말 내용과 서명을 데모버전 관리자페이지에서도 수정할 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 출퇴근 관리 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">⏰ 출퇴근 관리</h3>
+      <div style="display:grid; gap:12px;">
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">출근/퇴근 기록 방법</strong><br>
+          화면 우측 플로팅 버튼(출·퇴근)을 클릭하면 출퇴근 관리 화면이 열립니다. 출근하기 버튼을 누르면 현재 시각으로 출근이 기록되고, 이후 퇴근하기 버튼을 누르면 퇴근이 기록됩니다. (데모버전 시연가능)
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">회사 주소설정</strong><br>
+          관리자 페이지에서 출퇴근 기준이 되는 회사 주소를 설정할 수 있습니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">일별/월별 출퇴근 현황 조회</strong><br>
+          관리자는 전체 직원의 일별, 월별 출퇴근 현황을 조회하고 관리할 수 있습니다.
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">업무일지 작성 및 조회</strong><br>
+          전직원에게는 회사의 책임자가 계정을 생성하여 부여할 수 있으며, 부여받은 계정(아이디, 비번)으로 로그인하여 업무 내용을 기록하고 조회할 수 있습니다. (데모버전에서는 이미지로 확인가능)
+        </div>
+      </div>
+
+      <!-- 기타 기능 -->
+      <h3 style="font-size:16px; font-weight:700; color:#1a2e5a; margin:24px 0 12px; padding-bottom:8px; border-bottom:2px solid #e0e7f1;">💡 기타 기능</h3>
+      <div style="display:grid; gap:12px;">
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">카톡문의</strong><br>
+          우측 플로팅버튼에 위치해 있으며, 기업고객의 회사카톡채널로 이동하게 됩니다. (실제 홈페이지의 관리자페이지에서 회사의 채널 URL을 등록할 수 있습니다.)
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">더보기</strong><br>
+          화면 최하단에 있으며, 법정의무교육·종합검진은 제휴업체 사이트로 이동됩니다. 법정의무교육은 산업안전보건교육을 포함하여 시중가격의 50%로 전임직원 온라인교육이 가능하며, 종합검진은 국내 최대 종합건강검진 업체(KMI, 한국의학연구소)를 통해 '대기업수가'로 검진 가능합니다. (전임직원 및 가족까지 가능)
+        </div>
+        <div style="background:#f8f9fb; padding:14px 18px; border-radius:8px;">
+          <strong style="color:#2c5f8a;">데모사이트 바로가기</strong><br>
+          메인화면 하단에 있는 업종별 버튼은 실제 기업홈페이지 시스템 화면이며 예시로 만들어 놓은 것입니다. (실고객기업 버튼은 실제 기업고객의 홈페이지입니다.)
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 
 
@@ -1786,6 +1957,8 @@ img, video, iframe { max-width:100%; height:auto; }
 
     <!-- MAIN -->
     <main class="admin-main">
+      <!-- 모바일 사이드바 오버레이 -->
+      <div class="admin-mobile-overlay" id="adminMobileOverlay" onclick="closeAdminSidebar()"></div>
       <!-- 수정가능 항목 시그널 배너 -->
       <div id="adminSignalBanner" style="background:linear-gradient(90deg,#1a2e5a 0%,#1d4ed8 100%);padding:9px 28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <span id="adminSignalDot" style="width:10px;height:10px;background:#fbbf24;border-radius:50%;flex-shrink:0;box-shadow:0 0 6px #fbbf24;"></span>
@@ -1793,8 +1966,9 @@ img, video, iframe { max-width:100%; height:auto; }
         <span style="font-size:12px;color:rgba(255,255,255,0.82);">사이드바에서 <strong style="color:#86efac;">초록색 ▶ 항목</strong>은 메인페이지와 실시간 동기화되는 <strong style="color:#fbbf24;">수정 가능한 주요 콘텐츠</strong>입니다. 저장 즉시 메인페이지에 반영됩니다.</span>
       </div>
       <div class="admin-topbar">
+        <button id="adminMobileHamBtn" onclick="toggleAdminSidebar()"><span></span></button>
         <h2 id="adminPageTitle">대시보드</h2>
-        <button class="btn-result dark" style="padding:8px 20px;font-size:13px;background:linear-gradient(135deg,#1a2e5a,#2563eb);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;" onclick="adminGoMain()">
+        <button id="adminGoMainBtn" class="btn-result dark" style="padding:8px 16px;font-size:12px;background:linear-gradient(135deg,#1a2e5a,#2563eb);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;" onclick="adminGoMain()">
           🌐 메인페이지 보기
         </button>
       </div>
@@ -4771,12 +4945,13 @@ function goAdmin() {
     cb();
     return;
   }
-  // 일반 로그인: 관리자 페이지를 별도 창으로 열기
-  const adminUrl = location.href.split('?')[0] + '?mode=admin';
-  const adminWin = window.open(adminUrl, 'kfpc_admin', 'width=1280,height=900,scrollbars=yes,resizable=yes');
-  if(!adminWin) {
-    alert('팝업이 차단되었습니다. 브라우저에서 팝업 허용 후 다시 시도해주세요.');
-  }
+  // 같은 페이지 내에서 관리자 화면 전환 (PC/모바일 공통)
+  document.getElementById('main-site').style.display = 'none';
+  document.getElementById('sub-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  window.scrollTo(0, 0);
+  if(sliderTimer) clearInterval(sliderTimer);
+  renderAdmin('dashboard');
 }
 function goMain() {
   document.getElementById('loginModal').classList.remove('active');
@@ -4791,6 +4966,10 @@ function renderAdmin(section) {
   currentAdminSection = section;
   renderAdminSidebar();
   renderAdminContent(section);
+  // 모바일: 메뉴 클릭 후 사이드바 자동 닫기
+  if(window.innerWidth <= 768) {
+    closeAdminSidebar();
+  }
 }
 
 function renderAdminSidebar() {
@@ -4847,6 +5026,26 @@ function toggleAdminMenu(id, el) {
   el.classList.toggle('open');
   const sub = document.getElementById('sub_'+id);
   if(sub) sub.classList.toggle('open');
+}
+
+// ── 관리자 모바일 사이드바 토글 ──
+function toggleAdminSidebar() {
+  const sidebar = document.querySelector('.admin-sidebar');
+  const overlay = document.getElementById('adminMobileOverlay');
+  if(!sidebar) return;
+  const isOpen = sidebar.classList.contains('mobile-open');
+  if(isOpen) {
+    closeAdminSidebar();
+  } else {
+    sidebar.classList.add('mobile-open');
+    if(overlay) overlay.classList.add('active');
+  }
+}
+function closeAdminSidebar() {
+  const sidebar = document.querySelector('.admin-sidebar');
+  const overlay = document.getElementById('adminMobileOverlay');
+  if(sidebar) sidebar.classList.remove('mobile-open');
+  if(overlay) overlay.classList.remove('active');
 }
 
 function adminSearchBar() {
@@ -4968,12 +5167,6 @@ function renderAdminContent(section) {
   // ======== SECTION RENDERING ========
   if(section==='dashboard') {
     content.innerHTML=`
-      <div class="dash-stats">
-        <div class="dash-card"><div class="label">오늘 방문자</div><div class="value">42</div></div>
-        <div class="dash-card"><div class="label">이번주 방문자</div><div class="value">284</div></div>
-        <div class="dash-card"><div class="label">이번달 방문자</div><div class="value">1,204</div></div>
-        <div class="dash-card"><div class="label">총 방문자</div><div class="value">28,416</div></div>
-      </div>
       <div class="dash-table-wrap"><h3>방문자정보</h3>
         <table class="dash-visitor-table"><thead><tr><th>유입일자</th><th>페이지명</th></tr></thead>
         <tbody>${['/cn/kfpc/','/cn/kfpc/about/company/','/cn/kfpc/business/tech/','/cn/kfpc/','/cn/kfpc/cs/notice/','/cn/kfpc/contents/data/','/cn/kfpc/business/service/','/cn/kfpc/','/cn/kfpc/about/ceo/','/cn/kfpc/esg/'].map(p=>`<tr><td>2026-02-25</td><td>${p}</td></tr>`).join('')}</tbody>
@@ -6397,7 +6590,8 @@ function confirmCheckout() {
     document.getElementById('admin-page').style.display = 'block';
 
     // 관리자 topbar의 "메인페이지로" 버튼 → 부모 창 포커스 또는 새 탭
-    document.querySelector('.admin-topbar button').onclick = function() {
+    var goMainBtn = document.getElementById('adminGoMainBtn');
+    if(goMainBtn) goMainBtn.onclick = function() {
       if(window.opener && !window.opener.closed) {
         window.opener.focus();
         window.opener.location.reload();
