@@ -1217,7 +1217,7 @@ img, video, iframe { max-width:100%; height:auto; }
   <!-- HEADER -->
   <header class="site-header">
     <div class="header-inner">
-      <a class="logo" onclick="showLogoPopup()">
+      <a class="logo" id="mainLogoLink" onclick="showLogoPopup()">
         <div class="logo-icon">
           <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
@@ -1886,7 +1886,7 @@ img, video, iframe { max-width:100%; height:auto; }
 <div id="sub-page">
   <header class="site-header">
     <div class="header-inner">
-      <a class="logo" onclick="showLogoPopup()">
+      <a class="logo" id="subLogoLink" onclick="showLogoPopup()">
         <div class="logo-icon">
           <svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         </div>
@@ -2180,7 +2180,7 @@ const NEWS_ITEMS = [
   },
 ];
 
-const CONFIG_VERSION = '2.1'; // 소개 메뉴 m1-1 삭제 버전
+const CONFIG_VERSION = '2.2'; // 슬라이드 이미지 GitHub 교체 버전
 
 function getSavedConfig() {
   try {
@@ -2365,6 +2365,16 @@ function renderNav() {
 
   // Build mobile nav drawer
   renderMobileNav();
+
+  // 로고 이미지 반영
+  var logoUrl = config.logoUrl || '';
+  ['mainLogoLink','subLogoLink'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(logoUrl) {
+      el.innerHTML = '<img src="'+logoUrl+'" alt="로고" style="max-height:40px;max-width:160px;object-fit:contain;">';
+    }
+  });
 }
 
 function renderMobileNav() {
@@ -2445,12 +2455,12 @@ function renderSlider() {
 
   // ── 배경 이미지: .slide 요소에 직접 설정 (z-index 문제 없음) ──
   const STATIC_IMGS = {
-    neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide1.jpg',
-    data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide2.jpg',
-    grid:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide3.jpg',
-    particle: 'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide4.jpg',
-    wave:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide5.jpg',
-    aurora:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/slide6.jpg',
+    neural:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/1.jpg',
+    data:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/2.jpg',
+    grid:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/3.jpg',
+    particle: 'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/4.jpg',
+    wave:     'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/5.jpg',
+    aurora:   'https://raw.githubusercontent.com/kfpc0808/demohomepage/main/6.jpg',
   };
   canvasAnimators = [];
   const heroEl = document.getElementById('heroSlider');
@@ -3093,6 +3103,9 @@ function getSubPagePopupContent(parent, pageName) {
           <span class="info-popup-tag">법적 안전장치</span>
           <span class="info-popup-tag">시점인증</span>
           <span class="info-popup-tag">PDF 암호화</span>
+        </div>
+        <div style="margin-top:18px;text-align:center;">
+          <button onclick="window.open('https://raw.githubusercontent.com/kfpc0808/demohomepage/main/timestamp.png','_blank')" style="padding:14px 36px;background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,0.35);letter-spacing:1px;">📋 시점인증 프로세스</button>
         </div>`
     },
 
@@ -5249,12 +5262,12 @@ function renderAdminContent(section) {
 
     // ── 슬라이드 3개 고정 슬롯 — 스왑 방식 ──
     const SLIDE_POOL = [
-      { imgNum:1, label:'이미지1 — Neural',   tag:'파란 육각형 패턴',   type:'neural',   preview:'linear-gradient(135deg,#0a1628 0%,#1e4fab 100%)',   dot:'#3b82f6' },
-      { imgNum:2, label:'이미지2 — Data',     tag:'초록 파티클 네트워크', type:'data',     preview:'linear-gradient(135deg,#052e16 0%,#16a34a 100%)',   dot:'#22c55e' },
-      { imgNum:3, label:'이미지3 — Grid',     tag:'보라 라인 헥사곤',    type:'grid',     preview:'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',   dot:'#a855f7' },
-      { imgNum:4, label:'이미지4 — Particle', tag:'빨간 빛 입자',        type:'particle', preview:'linear-gradient(135deg,#450a0a 0%,#dc2626 100%)',   dot:'#ef4444' },
-      { imgNum:5, label:'이미지5 — Wave',     tag:'청록 파동/웨이브',     type:'wave',     preview:'linear-gradient(135deg,#042f2e 0%,#0d9488 100%)',   dot:'#14b8a6' },
-      { imgNum:6, label:'이미지6 — Aurora',   tag:'황금 오로라 빛',       type:'aurora',   preview:'linear-gradient(135deg,#1c1003 0%,#b45309 100%)',   dot:'#f59e0b' },
+      { imgNum:1, label:'이미지1', tag:'법률/법무',           type:'neural',   preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/1.jpg) center/cover', dot:'#3b82f6' },
+      { imgNum:2, label:'이미지2', tag:'교육/출판',           type:'data',     preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/2.jpg) center/cover', dot:'#22c55e' },
+      { imgNum:3, label:'이미지3', tag:'비즈니스/IT',         type:'grid',     preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/3.jpg) center/cover', dot:'#a855f7' },
+      { imgNum:4, label:'이미지4', tag:'4차산업/AI',          type:'particle', preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/4.jpg) center/cover', dot:'#ef4444' },
+      { imgNum:5, label:'이미지5', tag:'IT/데이터센터',       type:'wave',     preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/5.jpg) center/cover', dot:'#14b8a6' },
+      { imgNum:6, label:'이미지6', tag:'빅데이터/AI',         type:'aurora',   preview:'url(https://raw.githubusercontent.com/kfpc0808/demohomepage/main/6.jpg) center/cover', dot:'#f59e0b' },
     ];
     window._slidePool = SLIDE_POOL;
 
@@ -5297,7 +5310,12 @@ function renderAdminContent(section) {
         <tbody>
           <!-- ✅ 슬라이드 3개 고정 슬롯 -->
           ${slots.map((imgNum, slotIdx) => {
-            const img = SLIDE_POOL.find(p=>p.imgNum===imgNum) || SLIDE_POOL[0];
+            const img = SLIDE_POOL.find(p=>p.imgNum===imgNum);
+            const slideData = cfg.slideImages && cfg.slideImages[imgNum-1];
+            const isUploaded = slideData && slideData.type === 'photo' && slideData.photoUrl;
+            const thumbBg = isUploaded ? 'url('+slideData.photoUrl+') center/cover' : (img ? img.preview : SLIDE_POOL[0].preview);
+            const thumbLabel = isUploaded ? '업로드 이미지' : (img ? img.label : SLIDE_POOL[0].label);
+            const thumbTag = isUploaded ? '직접 업로드' : (img ? img.tag : SLIDE_POOL[0].tag);
             return `<tr style="background:${slotIdx%2===0?'#f0f4ff':'#fff'};">
               <td><input type="checkbox" style="width:16px;height:16px;"></td>
               <td style="font-weight:700;color:#2563eb;">${slotIdx+1}</td>
@@ -5306,11 +5324,11 @@ function renderAdminContent(section) {
               <td>슬라이드 ${slotIdx+1}번째</td>
               <td>
                 <div style="display:flex;align-items:center;gap:8px;">
-                  <div style="width:44px;height:44px;border-radius:8px;background:${img.preview};flex-shrink:0;
+                  <div style="width:44px;height:44px;border-radius:8px;background:${thumbBg};flex-shrink:0;
                               border:2px solid rgba(255,255,255,0.15);box-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>
                   <div>
-                    <div style="font-size:12px;font-weight:700;color:#1a2e5a;">${img.label}</div>
-                    <div style="font-size:11px;color:#94a3b8;">${img.tag}</div>
+                    <div style="font-size:12px;font-weight:700;color:#1a2e5a;">${thumbLabel}</div>
+                    <div style="font-size:11px;color:#94a3b8;">${thumbTag}</div>
                   </div>
                 </div>
               </td>
@@ -5349,11 +5367,20 @@ function renderAdminContent(section) {
           <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:2px solid #1a2e5a;margin-bottom:8px;">
             <div>
               <h3 id="swapModalTitle" style="font-size:17px;font-weight:800;color:#1a2e5a;margin:0;"></h3>
-              <p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">6가지 배경 스타일 중 1개를 선택하면 해당 슬라이드가 교체됩니다.</p>
+              <p style="font-size:12px;color:#94a3b8;margin:4px 0 0;">기본 이미지 6종 중 선택하거나, 컴퓨터에서 직접 업로드할 수 있습니다.</p>
             </div>
             <button onclick="closeSlideSwapModal()" style="background:none;border:none;font-size:26px;cursor:pointer;color:#999;line-height:1;">×</button>
           </div>
           <div id="swapChoiceGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;"></div>
+          <!-- 직접 업로드 영역 -->
+          <div style="margin-top:16px;padding:16px;border:2px dashed #cbd5e1;border-radius:12px;text-align:center;background:#f8fafc;">
+            <p style="font-size:13px;color:#64748b;margin:0 0 10px;">💻 컴퓨터에서 직접 업로드 <span style="font-size:11px;color:#94a3b8;">(권장 1920×480px, 3MB 이하)</span></p>
+            <input type="file" id="slideUploadInput" accept="image/*" style="display:none" onchange="uploadSlideImage(this)">
+            <button onclick="document.getElementById('slideUploadInput').click()" style="padding:9px 24px;background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">📁 파일선택</button>
+            <div id="slideUploadPreview" style="margin-top:10px;display:none;">
+              <img id="slideUploadPreviewImg" style="max-width:100%;max-height:100px;border-radius:8px;border:2px solid #2563eb;">
+            </div>
+          </div>
           <div style="display:flex;justify-content:flex-end;margin-top:20px;gap:12px;padding-top:14px;border-top:1px solid #e0e4ed;">
             <button onclick="closeSlideSwapModal()" style="padding:11px 24px;background:#e0e4ed;color:#555;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">취소</button>
             <button id="swapConfirmBtn" onclick="confirmSlideSwap(window._swapSlotIdx)" disabled
@@ -5445,16 +5472,18 @@ function renderAdminContent(section) {
       <div class="admin-form-section" style="margin-bottom:24px;">
         <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">홈페이지로고</h4>
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0;">
-          <div onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="width:120px;height:80px;background:#87ceeb;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:12px;text-align:center;padding:8px;cursor:pointer;">
-            로고 이미지<br><span style="font-size:10px;opacity:0.8;">(163×64px)<br>(3mb 이하 이미지파일)</span>
+          <div id="logoPreviewBox" style="width:163px;height:64px;background:#87ceeb;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;text-align:center;padding:8px;overflow:hidden;">
+            ${config.logoUrl ? '<img src="'+config.logoUrl+'" style="max-width:100%;max-height:100%;object-fit:contain;">' : '로고 이미지<br><span style="font-size:10px;opacity:0.8;">(163×64px)<br>(3mb 이하 이미지파일)</span>'}
           </div>
           <div>
             <div style="font-size:13px;color:#888;margin-bottom:8px;">파일선택</div>
-            <button onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
+            <input type="file" id="logoFileInput" accept="image/*" style="display:none" onchange="previewMainLogo(this)">
+            <button onclick="document.getElementById('logoFileInput').click()" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
           </div>
         </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
-          <button class="btn-primary-admin" onclick="showToast('실제 운영 서버에서 등록 가능합니다')">등록</button>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+          <button class="btn-primary-admin" style="background:#e0e4ed;color:#555;" onclick="removeMainLogo()">초기화</button>
+          <button class="btn-primary-admin" onclick="saveMainLogo()">등록</button>
         </div>
       </div>
 
@@ -6358,10 +6387,7 @@ function openSlideSwapModal(slotIdx) {
         'transition:all .2s;' +
         'box-shadow:' + (isCurrent?'0 0 0 4px rgba(37,99,235,0.22)':'none') + ';">' +
       (isCurrent ? '<div style="position:absolute;top:7px;right:7px;background:#2563eb;color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:2;">현재</div>' : '') +
-      '<div style="height:120px;display:flex;align-items:center;justify-content:center;background:' + img.preview + ';position:relative;">' +
-        '<span style="font-size:32px;">' + (icons[img.type]||'🖼') + '</span>' +
-        '<div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);' +
-             'background:' + img.dot + ';border-radius:3px;height:4px;width:40%;opacity:0.9;"></div>' +
+      '<div style="height:120px;background:' + img.preview + ';position:relative;">' +
       '</div>' +
       '<div class="swap-card-bottom" style="padding:9px 11px;background:' + (isCurrent?'#eff6ff':'#f8faff') + ';">' +
         '<div class="swap-card-name" style="font-size:12px;font-weight:700;color:' + (isCurrent?'#2563eb':'#374151') + ';margin-bottom:2px;">' +
@@ -6409,7 +6435,20 @@ function confirmSlideSwap(passedSlotIdx) {
   if(imgNum == null || slotIdx == null || slotIdx === undefined) { showToast('⚠️ 이미지를 먼저 선택해주세요.'); return; }
   config = getSavedConfig();
   if(!config.heroSlides || config.heroSlides.length < 3) config.heroSlides = [1,2,3];
-  config.heroSlides[slotIdx] = imgNum;
+  // 직접 업로드 처리
+  if(imgNum === 'upload' && window._swapUploadUrl) {
+    var uploadIdx = 7 + slotIdx; // 7,8,9 인덱스 사용 (기본6개 뒤)
+    if(!config.slideImages) config.slideImages = [];
+    while(config.slideImages.length <= uploadIdx) config.slideImages.push({});
+    config.slideImages[uploadIdx] = {
+      title:'업로드 이미지', badge:'CUSTOM IMAGE', headline:'<em>맞춤형</em> 슬라이드', sub:'직접 업로드한 이미지입니다.',
+      type:'photo', photoUrl: window._swapUploadUrl
+    };
+    config.heroSlides[slotIdx] = uploadIdx + 1; // 1-based
+    window._swapUploadUrl = null;
+  } else {
+    config.heroSlides[slotIdx] = imgNum;
+  }
   config.heroSlides = config.heroSlides.slice(0,3);
   saveConfig(config);
   closeSlideSwapModal();
@@ -6422,6 +6461,65 @@ function closeSlideSwapModal() {
   document.getElementById('slideSwapModal').style.display = 'none';
   window._swapPending = null;
   window._swapSlotIdx = null;
+}
+
+// ── 홈페이지 로고 업로드 ──
+window._pendingLogoUrl = null;
+function previewMainLogo(input) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  if(file.size > 3*1024*1024) { showToast('⚠️ 3MB 이하 이미지만 업로드 가능합니다.'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    window._pendingLogoUrl = e.target.result;
+    var box = document.getElementById('logoPreviewBox');
+    if(box) box.innerHTML = '<img src="'+e.target.result+'" style="max-width:100%;max-height:100%;object-fit:contain;">';
+  };
+  reader.readAsDataURL(file);
+}
+function saveMainLogo() {
+  if(!window._pendingLogoUrl) { showToast('⚠️ 먼저 로고 이미지를 선택해주세요.'); return; }
+  config = getSavedConfig();
+  config.logoUrl = window._pendingLogoUrl;
+  saveConfig(config);
+  window._pendingLogoUrl = null;
+  showToast('✅ 홈페이지 로고가 등록되었습니다! 메인화면에 즉시 반영됩니다.');
+  try { renderNav(); } catch(e) {}
+}
+function removeMainLogo() {
+  config = getSavedConfig();
+  delete config.logoUrl;
+  saveConfig(config);
+  window._pendingLogoUrl = null;
+  showToast('✅ 로고가 초기화되었습니다.');
+  renderAdmin('seo');
+  try { renderNav(); } catch(e) {}
+}
+
+// ── 슬라이드 이미지 직접 업로드 ──
+function uploadSlideImage(input) {
+  if(!input.files || !input.files[0]) return;
+  var file = input.files[0];
+  if(file.size > 3*1024*1024) { showToast('⚠️ 3MB 이하 이미지만 업로드 가능합니다.'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    // 미리보기 표시
+    var preview = document.getElementById('slideUploadPreview');
+    var previewImg = document.getElementById('slideUploadPreviewImg');
+    if(preview && previewImg) { previewImg.src = dataUrl; preview.style.display = 'block'; }
+    // 기존 선택 해제
+    document.querySelectorAll('.swap-choice-card').forEach(function(c) {
+      c.style.borderColor = '#e0e4ed';
+      c.style.boxShadow = 'none';
+    });
+    // 업로드 이미지를 pending으로 설정 (imgNum=0 → 직접 업로드 표시)
+    window._swapPending = 'upload';
+    window._swapUploadUrl = dataUrl;
+    var btn = document.getElementById('swapConfirmBtn');
+    if(btn) { btn.disabled=false; btn.style.background='linear-gradient(135deg,#1a2e5a,#2563eb)'; btn.style.opacity='1'; btn.style.cursor='pointer'; }
+  };
+  reader.readAsDataURL(file);
 }
 
 function saveSlideImages() {
