@@ -46,6 +46,22 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
   50%      { color:#ef4444; text-shadow: 0 0 10px rgba(239,68,68,0.7); }
 }
 
+/* SEO정보관리 사이드바 강조 */
+.admin-seo-item {
+  background: linear-gradient(90deg,rgba(239,68,68,0.15),rgba(220,38,38,0.08)) !important;
+  border-left: 3px solid #ef4444 !important;
+  position: relative;
+}
+.seomgmt-blink {
+  font-weight: 700;
+  animation: seoBlink 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes seoBlink {
+  0%,100% { color:#ef4444; text-shadow: 0 0 6px rgba(239,68,68,0.6); }
+  50%      { color:#b91c1c; text-shadow: 0 0 10px rgba(185,28,28,0.7); }
+}
+
 /* HEADER */
 .site-header {
   position:fixed; top:0; left:0; right:0; z-index:1000;
@@ -4790,6 +4806,9 @@ function renderAdminSidebar() {
             if(c.id==='imageMgmt') {
               return `<div class="admin-sub-item admin-imgmgmt-item ${c.id===currentAdminSection?'active':''}" onclick="renderAdmin('${c.id}')">🖼️ <span class="imgmgmt-blink">${cLabel}</span></div>`;
             }
+            if(c.id==='seo') {
+              return `<div class="admin-sub-item admin-seo-item ${c.id===currentAdminSection?'active':''}" onclick="renderAdmin('${c.id}')">🔍 <span class="seomgmt-blink">${cLabel}</span></div>`;
+            }
             if(c.id==='csResearch') {
               return `<div class="admin-sub-item ${c.id===currentAdminSection?'active':''}" onclick="adminShowCsResearch()">▶ <span class="csresearch-blink">${cLabel}</span></div>`;
             }
@@ -5136,6 +5155,136 @@ function renderAdminContent(section) {
               ✅ 확인 적용
             </button>
           </div>
+        </div>
+      </div>`;
+
+  } else if(section==='seo') {
+    content.innerHTML=`
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">SEO정보관리</h3>
+
+      <!-- 메타태그 -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">메타태그</h4>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+          ${[
+            ['타이틀 (title)', '<input type="text" class="form-control" id="seoTitle" value="'+(config.seo&&config.seo.title?config.seo.title:'(주)KFPC / 부설 금융기술연구소')+'" style="margin:0;">'],
+            ['키워드 (keywords)', '<input type="text" class="form-control" id="seoKeywords" value="'+(config.seo&&config.seo.keywords?config.seo.keywords:'금융컨설팅, KFPC, AI금융, 금융기술연구소')+'" style="margin:0;">'],
+            ['설명 (description)', '<input type="text" class="form-control" id="seoDesc" value="'+(config.seo&&config.seo.desc?config.seo.desc:'(주)KFPC는 혁신적인 AI 금융 컨설팅 솔루션을 제공하는 전문 기업입니다.')+'" style="margin:0;">'],
+          ].map(([l,v])=>`<tr>
+            <td style="background:#87ceeb;color:#fff;padding:12px 16px;font-size:13px;font-weight:600;width:180px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.3);">${l}</td>
+            <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);">${v}</td>
+          </tr>`).join('')}
+        </table>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn-primary-admin" onclick="saveSeoMeta()">등록</button>
+        </div>
+      </div>
+
+      <!-- 메타태그(OG) -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">메타태그(OG)</h4>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+          ${[
+            ['타이틀 (title)', '<input type="text" class="form-control" id="ogTitle" value="'+(config.seo&&config.seo.ogTitle?config.seo.ogTitle:'(주)KFPC / 부설 금융기술연구소')+'" style="margin:0;">'],
+            ['사이트 이름 (site_name)', '<input type="text" class="form-control" id="ogSiteName" value="'+(config.seo&&config.seo.ogSiteName?config.seo.ogSiteName:'(주)KFPC / 부설 금융기술연구소')+'" style="margin:0;">'],
+            ['설명 (description)', '<input type="text" class="form-control" id="ogDesc" value="'+(config.seo&&config.seo.ogDesc?config.seo.ogDesc:'(주)KFPC는 혁신적인 AI 금융 컨설팅 솔루션을 제공하는 전문 기업입니다.')+'" style="margin:0;">'],
+            ['OG 이미지<br><span style="font-size:11px;font-weight:400;opacity:0.8;">권장사이즈 800×399px<br>(5mb 이하 jpg,jpeg,png)</span>', '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:13px;color:#888;">파일선택</span><button onclick="showToast(\'실제 운영 서버에서 이미지 업로드가 가능합니다\')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button></div>'],
+          ].map(([l,v])=>`<tr>
+            <td style="background:#87ceeb;color:#fff;padding:12px 16px;font-size:13px;font-weight:600;width:180px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.3);">${l}</td>
+            <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);">${v}</td>
+          </tr>`).join('')}
+        </table>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn-primary-admin" onclick="saveSeoOg()">등록</button>
+        </div>
+      </div>
+
+      <!-- 파비콘 -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">파비콘</h4>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0;">
+          <div style="width:120px;height:80px;background:#87ceeb;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:12px;text-align:center;padding:8px;">
+            파비콘 이미지<br><span style="font-size:10px;opacity:0.8;">16px×16px<br>(1mb 이하 .ico)</span>
+          </div>
+          <div>
+            <div style="font-size:13px;color:#888;margin-bottom:8px;">파일선택</div>
+            <button onclick="showToast('실제 운영 서버에서 파비콘 업로드가 가능합니다')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn-primary-admin" onclick="showToast('실제 운영 서버에서 등록 가능합니다')">등록</button>
+        </div>
+      </div>
+
+      <!-- 홈페이지 로고 -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">홈페이지로고</h4>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0;">
+          <div onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="width:120px;height:80px;background:#87ceeb;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:12px;text-align:center;padding:8px;cursor:pointer;">
+            로고 이미지<br><span style="font-size:10px;opacity:0.8;">(163×64px)<br>(3mb 이하 이미지파일)</span>
+          </div>
+          <div>
+            <div style="font-size:13px;color:#888;margin-bottom:8px;">파일선택</div>
+            <button onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn-primary-admin" onclick="showToast('실제 운영 서버에서 등록 가능합니다')">등록</button>
+        </div>
+      </div>
+
+      <!-- 관리자 페이지 로고 -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">관리자 페이지 로고</h4>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0;">
+          <div onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="width:120px;height:80px;background:#87ceeb;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:12px;text-align:center;padding:8px;cursor:pointer;">
+            관리자 페이지 로고 이미지<br><span style="font-size:10px;opacity:0.8;">(109×43px)<br>(3mb 이하 이미지파일)</span>
+          </div>
+          <div>
+            <div style="font-size:13px;color:#888;margin-bottom:8px;">파일선택</div>
+            <button onclick="showToast('실제 운영 서버에서 로고 변경이 가능합니다')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn-primary-admin" onclick="showToast('실제 운영 서버에서 등록 가능합니다')">등록</button>
+        </div>
+      </div>
+
+      <!-- 하단정보 관리 -->
+      <div class="admin-form-section" style="margin-bottom:24px;">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">하단정보 관리</h4>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+          ${[
+            ['홈페이지명*', '<input type="text" class="form-control" id="seoFooterCompany" value="'+(config.footer.company||'(주)KFPC / 부설 금융기술연구소')+'" style="margin:0;">'],
+            ['대표연락처', '<input type="text" class="form-control" id="seoFooterTel" value="'+(config.footer.tel||'Tel. 02-1234-5678 / Fax. 02-1234-5679')+'" style="margin:0;">'],
+            ['대표주소', '<input type="text" class="form-control" id="seoFooterAddress" value="'+(config.footer.address||'서울특별시 강남구 역삼동 테헤란로 123')+'" style="margin:0;">'],
+            ['대표이메일', '<input type="text" class="form-control" id="seoFooterEmail" value="'+(config.footer.email||'E-mail. contact@kfpc.co.kr')+'" style="margin:0;">'],
+            ['사업자번호', '<input type="text" class="form-control" id="seoFooterBizNo" value="'+(config.footer.bizNo||'사업자등록번호 : 123-45-67890')+'" style="margin:0;">'],
+            ['저작권 문구', '<input type="text" class="form-control" id="seoFooterCopy" value="'+(config.footer.copy||'© (주)KFPC All Rights Reserved')+'" style="margin:0;">'],
+          ].map(([l,v])=>`<tr>
+            <td style="background:#87ceeb;color:#fff;padding:12px 16px;font-size:13px;font-weight:600;width:180px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.3);">${l}</td>
+            <td style="padding:10px 16px;border-bottom:1px solid var(--gray-mid);">${v}</td>
+          </tr>`).join('')}
+        </table>
+        <div style="display:flex;justify-content:flex-end;">
+          <button class="btn-primary-admin" onclick="saveSeoFooter()">등록</button>
+        </div>
+      </div>
+
+      <!-- 약도 이미지 -->
+      <div class="admin-form-section">
+        <h4 style="font-size:15px;font-weight:700;margin-bottom:16px;color:#1a2e5a;padding-bottom:8px;border-bottom:2px solid #1a2e5a;">약도 이미지</h4>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0;">
+          <div style="width:120px;height:80px;background:#87ceeb;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:11px;text-align:center;padding:8px;">
+            약도 이미지<br><span style="font-size:10px;opacity:0.8;">지도이미지<br>(700×507px)<br>(3mb 이하)</span>
+          </div>
+          <div>
+            <div style="font-size:13px;color:#888;margin-bottom:8px;">파일선택</div>
+            <button onclick="showToast('실제 운영 서버에서 약도 이미지 업로드가 가능합니다')" style="padding:8px 20px;background:#87ceeb;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;">파일선택</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn-primary-admin" onclick="showToast('실제 운영 서버에서 등록 가능합니다')">등록</button>
         </div>
       </div>`;
 
@@ -6013,6 +6162,34 @@ function saveIntro() {
   config.intro.body = document.getElementById('introBodyInput').value;
   saveConfig(config);
   showToast('✅ 회사 소개글 저장 완료');
+}
+
+function saveSeoMeta() {
+  if(!config.seo) config.seo = {};
+  config.seo.title = document.getElementById('seoTitle').value;
+  config.seo.keywords = document.getElementById('seoKeywords').value;
+  config.seo.desc = document.getElementById('seoDesc').value;
+  saveConfig(config);
+  showToast('✅ 메타태그 저장 완료');
+}
+function saveSeoOg() {
+  if(!config.seo) config.seo = {};
+  config.seo.ogTitle = document.getElementById('ogTitle').value;
+  config.seo.ogSiteName = document.getElementById('ogSiteName').value;
+  config.seo.ogDesc = document.getElementById('ogDesc').value;
+  saveConfig(config);
+  showToast('✅ OG 메타태그 저장 완료');
+}
+function saveSeoFooter() {
+  config.footer.company = document.getElementById('seoFooterCompany').value;
+  config.footer.tel     = document.getElementById('seoFooterTel').value;
+  config.footer.address = document.getElementById('seoFooterAddress').value;
+  config.footer.email   = document.getElementById('seoFooterEmail').value;
+  config.footer.bizNo   = document.getElementById('seoFooterBizNo').value;
+  config.footer.copy    = document.getElementById('seoFooterCopy').value;
+  saveConfig(config);
+  renderFooter();
+  showToast('✅ 하단정보 저장 완료 — 메인화면 푸터에 반영되었습니다');
 }
 
 function saveFooter() {
