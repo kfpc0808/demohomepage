@@ -1982,20 +1982,19 @@ const NEWS_ITEMS = [
   },
 ];
 
-const CONFIG_VERSION = '2.2'; // heroSlides 순서 초기화 버전
+const CONFIG_VERSION = '2.1'; // 소개 메뉴 m1-1 삭제 버전
 
 function getSavedConfig() {
   try {
     const s = localStorage.getItem('kfpc_config');
     if(s) {
       const saved = JSON.parse(s);
-      // 버전 체크: 2.1 → 2.2 업그레이드: heroSlides만 초기화, 나머지 설정 보존
+      // 버전 체크: 구버전이면 DEFAULT_CONFIG로 초기화
       if(saved._version !== CONFIG_VERSION) {
-        const merged = JSON.parse(JSON.stringify(saved));
-        merged._version = CONFIG_VERSION;
-        merged.heroSlides = [1, 2, 3]; // ← 슬라이드 순서만 초기화
-        localStorage.setItem('kfpc_config', JSON.stringify(merged));
-        return merged;
+        const fresh = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        fresh._version = CONFIG_VERSION;
+        localStorage.setItem('kfpc_config', JSON.stringify(fresh));
+        return fresh;
       }
       // 버전 동일해도 혹시 m1-1 '소개' 항목이 남아있으면 제거
       const m1 = saved.menu && saved.menu.find(m => m.id === 'm1');
