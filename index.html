@@ -1183,6 +1183,9 @@ img, video, iframe { max-width:100%; height:auto; }
       <nav class="main-nav" id="mainNav"></nav>
 
       <div class="header-right">
+        <button id="adminQuickBtn" style="display:none;align-items:center;gap:6px;padding:7px 16px;background:linear-gradient(135deg,#1a2e5a,#2563eb);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;" onclick="goAdminFromMain()">
+          ⚙️ 관리자
+        </button>
         <button class="btn-login" onclick="openLogin()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           로그인
@@ -2084,22 +2087,32 @@ function goAttendanceDailyAdmin() {
 // ── 관리자 → 메인페이지 이동 ──
 function adminGoMain() {
   if(window.opener && !window.opener.closed) {
-    // 팝업 창인 경우: 부모 창으로 포커스 + 재렌더
     try { window.opener.renderMain(); } catch(e){}
     window.opener.focus();
   } else {
-    // 같은 창 admin 모드인 경우: 메인 모드로 전환
     const url = location.href.split('?')[0];
     if(history.pushState) {
       history.pushState({}, '', url);
       document.getElementById('admin-page').style.display = 'none';
       document.getElementById('sub-page').style.display = 'none';
       document.getElementById('main-site').style.display = 'block';
+      window.scrollTo(0, 0);
       renderMain();
+      if(sliderTimer) clearInterval(sliderTimer);
+      sliderTimer = setInterval(nextSlide, 5000);
     } else {
       location.href = url;
     }
   }
+}
+
+function goAdminFromMain() {
+  document.getElementById('main-site').style.display = 'none';
+  document.getElementById('sub-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  window.scrollTo(0, 0);
+  if(sliderTimer) clearInterval(sliderTimer);
+  renderAdmin('dashboard');
 }
 
 // ── 시그널 dot 깜빡이 ──
@@ -2156,6 +2169,8 @@ function renderMain() {
   renderNews();
   renderCustomer();
   renderFooter();
+  const adminQuickBtn = document.getElementById('adminQuickBtn');
+  if(adminQuickBtn) adminQuickBtn.style.display = isLoggedIn ? 'flex' : 'none';
 }
 
 function renderNav() {
