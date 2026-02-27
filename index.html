@@ -221,7 +221,7 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
   overflow-x:unset; padding-bottom:0;
 }
 @media(max-width:1024px) { .news-slider { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:600px)  { .news-slider { grid-template-columns:1fr; } }
+@media(max-width:600px)  { .news-slider { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; gap:12px; padding-bottom:8px; } .news-slider .news-card { flex:0 0 75%; scroll-snap-align:start; } }
 
 /* 뉴스 카드 */
 .news-card {
