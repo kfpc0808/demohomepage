@@ -1298,11 +1298,11 @@ img, video, iframe { max-width:100%; height:auto; }
     <div class="news-inner">
       <div class="news-header">
         <div class="news-header-left">
-          <div class="section-label">NEWS &amp; MEDIA</div>
-          <div class="section-title" style="margin-bottom:0;">뉴스&amp;홍보</div>
+          <div class="section-label">PROMOTION</div>
+          <div class="section-title" style="margin-bottom:0;">홍보 배너</div>
         </div>
-        <button class="news-more-btn" onclick="showSubPagePopup('뉴스&amp;홍보','뉴스&amp;홍보','뉴스&amp;홍보')">
-          전체 보기
+        <button class="news-more-btn" onclick="showBannerPopup()">
+          배너 관리
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -2735,20 +2735,9 @@ function renderIntro() {
 
 function renderNews() {
   document.getElementById('newsSlider').innerHTML = NEWS_ITEMS.map(n => `
-    <div class="news-card" onclick="showSubPagePopup('뉴스&홍보','뉴스&홍보','뉴스&홍보')">
-      <div class="news-card-img">
+    <div class="news-card" onclick="showBannerPopup()" style="border-radius:12px;">
+      <div class="news-card-img" style="height:auto;aspect-ratio:447/241;">
         <div class="news-card-img-bg" style="background-image:url('${n.img}');"></div>
-        <span class="news-card-cat ${n.catClass}">${n.cat}</span>
-      </div>
-      <div class="news-card-body">
-        <div class="news-card-date">${n.date}</div>
-        <div class="news-card-title">${n.title}</div>
-        <div class="news-card-footer">
-          <span class="news-card-source">${n.source}</span>
-          <div class="news-card-arrow">
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
       </div>
     </div>
   `).join('');
@@ -3011,32 +3000,32 @@ function getSubPagePopupContent(parent, pageName) {
         </div>`
     },
     '뉴스&홍보': {
-      title: '뉴스&홍보 페이지 안내',
+      title: '홍보 배너 페이지 안내',
       body: `
-        <div style="background:linear-gradient(135deg,#1a4a2e 0%,#1e7a4e 100%);border-radius:10px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;">
-          <div style="font-size:38px;flex-shrink:0;">📰</div>
+        <div style="background:linear-gradient(135deg,#1a3a5c 0%,#2563eb 100%);border-radius:10px;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;">
+          <div style="font-size:38px;flex-shrink:0;">🖼️</div>
           <div>
-            <div style="color:#fff;font-size:15px;font-weight:800;margin-bottom:4px;">뉴스 & 홍보 게시판</div>
-            <div style="color:rgba(255,255,255,0.85);font-size:12px;line-height:1.6;">보도자료·테크스토리·월간지 등 다양한<br>홍보 콘텐츠를 등록하는 게시판입니다.</div>
+            <div style="color:#fff;font-size:15px;font-weight:800;margin-bottom:4px;">홍보용 배너 페이지 공간</div>
+            <div style="color:rgba(255,255,255,0.85);font-size:12px;line-height:1.6;">회사의 상품, 서비스 등을 홍보할 때<br>관리자 페이지에서 게시 가능합니다.</div>
           </div>
         </div>
         <div class="info-popup-highlight">
-          📋 <strong>목록형 게시판:</strong> 번호·제목·작성자·작성일·첨부파일 컬럼 구성<br><br>
-          🔍 <strong>검색 기능 내장:</strong> 제목+내용 통합 검색으로 원하는 뉴스 빠르게 조회<br><br>
-          📎 <strong>파일 첨부 지원:</strong> PDF 보도자료, 이미지 등 첨부파일 등록 가능<br><br>
+          🖼️ <strong>이미지 배너 전용:</strong> 텍스트 없이 배너 이미지만 노출되는 깔끔한 홍보 공간<br><br>
+          🔗 <strong>클릭 시 이동:</strong> 배너를 클릭하면 해당 상품·서비스 상세 페이지로 자동 연결<br><br>
+          ⚙️ <strong>관리자 등록:</strong> 관리자 페이지에서 배너 이미지와 링크를 직접 등록·관리<br><br>
           ✏️ <strong>관리자 페이지에서 페이지 명칭을 수정할 수 있습니다!</strong>
         </div>
-        <div style="background:#f0f9f4;border:1px solid #b7e0c8;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#1a5a3a;line-height:1.8;">
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:12px;color:#1e40af;line-height:1.8;">
           <strong>📌 활용 예시</strong><br>
-          · [테크스토리] 초저전력 통신 'A-ULP' 모듈로 스마트 팩토리 인프라 혁명<br>
-          · [월간 테크피아] AI 예측 진단 솔루션 'APM', 제조사 유지보수 비용 35% 절감<br>
-          · [서울경제] 글로벌 반도체 시장 장악… 나노 센싱 기술로 수율 3.5%p 혁신
+          · 신규 출시 상품 홍보 배너 → 클릭 시 상품 소개 페이지 이동<br>
+          · 기업 서비스 안내 배너 → 클릭 시 서비스 상세 페이지 이동<br>
+          · 이벤트·프로모션 배너 → 클릭 시 이벤트 페이지 이동
         </div>
         <div class="info-popup-tags">
-          <span class="info-popup-tag">목록형 게시판</span>
-          <span class="info-popup-tag">파일 첨부 가능</span>
-          <span class="info-popup-tag">검색 기능</span>
-          <span class="info-popup-tag">보도자료 관리</span>
+          <span class="info-popup-tag">이미지 배너 전용</span>
+          <span class="info-popup-tag">클릭 시 페이지 이동</span>
+          <span class="info-popup-tag">관리자 등록</span>
+          <span class="info-popup-tag">상품·서비스 홍보</span>
           <span class="info-popup-tag">페이지명 변경</span>
         </div>`
     },
@@ -3142,6 +3131,29 @@ function getSubPagePopupContent(parent, pageName) {
 function showSubPagePopup(parent, pageLabel, page) {
   const content = getSubPagePopupContent(parent, pageLabel);
   showInfoPopup(content.title, content.body, '페이지로 이동', () => goSubPage(parent, page), true);
+}
+
+function showBannerPopup() {
+  const content = getSubPagePopupContent('뉴스&홍보', '뉴스&홍보');
+  showInfoPopup(content.title, content.body, '관리자 페이지로 이동', function() {
+    if(isLoggedIn) {
+      document.getElementById('main-site').style.display = 'none';
+      document.getElementById('sub-page').style.display = 'none';
+      document.getElementById('admin-page').style.display = 'block';
+      renderAdmin('banner');
+      window.scrollTo(0, 0);
+    } else {
+      openLogin();
+      window._afterLoginCallback = function() {
+        window._afterLoginCallback = null;
+        document.getElementById('main-site').style.display = 'none';
+        document.getElementById('sub-page').style.display = 'none';
+        document.getElementById('admin-page').style.display = 'block';
+        renderAdmin('banner');
+        window.scrollTo(0, 0);
+      };
+    }
+  }, true);
 }
 
 
@@ -6049,6 +6061,54 @@ function renderAdminContent(section) {
     // Parent menu click → show first child
     const firstChild = ADMIN_MENUS.find(m=>m.id===section)?.children?.[0];
     if(firstChild) { renderAdmin(firstChild.id); return; }
+
+  } else if(section==='banner') {
+    const now = new Date();
+    const dateStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+    content.innerHTML=`
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:20px;color:var(--primary);">하단배너관리</h3>
+      <div class="admin-form-section" style="padding:0;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <tr>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;width:180px;">제목<span style="color:#e74c3c;">*</span></td>
+            <td style="padding:10px 16px;" colspan="3"><input type="text" class="form-control" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin:0;"></td>
+          </tr>
+          <tr>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;">링크<span style="color:#e74c3c;">*</span></td>
+            <td style="padding:10px 16px;" colspan="3"><input type="text" class="form-control" placeholder="https://" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;margin:0;"></td>
+          </tr>
+          <tr>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;">게시여부<span style="color:#e74c3c;">*</span></td>
+            <td style="padding:10px 16px;">
+              <select style="padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+                <option>게시</option><option>비게시</option>
+              </select>
+            </td>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;width:120px;">노출순위</td>
+            <td style="padding:10px 16px;"><input type="number" value="0" style="width:80px;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;text-align:center;"></td>
+          </tr>
+          <tr>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;">이미지<span style="color:#e74c3c;">*</span><br><span style="font-size:11px;font-weight:400;">(447 x 241 px)</span></td>
+            <td style="padding:10px 16px;" colspan="3">
+              <div style="margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+                <span style="font-size:13px;color:#999;">파일선택</span>
+                <button style="padding:8px 20px;background:#8a8a8a;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">파일선택</button>
+              </div>
+              <div style="width:447px;max-width:100%;height:241px;background:#e8e8e8;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:13px;color:#999;">🖼️ 이미지 미리보기 (447 x 241)</span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#87ceeb;color:#fff;padding:14px 16px;font-size:13px;font-weight:700;text-align:center;">등록일<span style="color:#e74c3c;">*</span></td>
+            <td style="padding:10px 16px;" colspan="3"><span style="font-size:14px;color:#333;">${dateStr}</span></td>
+          </tr>
+        </table>
+        <div style="display:flex;justify-content:center;gap:16px;margin-top:28px;padding-bottom:20px;">
+          <button style="padding:12px 40px;background:var(--gray-mid);color:var(--text-main);border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;" onclick="renderAdmin('banner')">취소</button>
+          <button class="btn-primary-admin" style="padding:12px 40px;" onclick="showToast('✅ 배너가 등록되었습니다');renderAdmin('banner')">등록완료</button>
+        </div>
+      </div>`;
 
   } else {
     // Generic fallback
