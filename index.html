@@ -793,27 +793,6 @@ body { font-family:'Noto Sans KR', sans-serif; color:var(--text-main); backgroun
 .admin-parent.open svg { transform:rotate(180deg); }
 
 .admin-main { margin-left:220px; flex:1; }
-
-/* ── 관리자 페이지 모바일 반응형 ── */
-@media(max-width:768px) {
-  .admin-sidebar {
-    width: 220px;
-    transform: translateX(-220px);
-    transition: transform 0.25s ease;
-    z-index: 200;
-  }
-  .admin-sidebar.mob-open { transform: translateX(0); }
-  .admin-main { margin-left: 0; }
-  .admin-topbar { padding: 0 16px; }
-  .admin-body { padding: 16px; }
-  .admin-form-section { padding: 16px; }
-  .admin-table-wrap { overflow-x: auto; }
-}
-.admin-sidebar-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45); z-index: 199;
-}
-.admin-sidebar-overlay.active { display: block; }
 .admin-topbar {
   background:#fff; border-bottom:1px solid var(--gray-mid);
   padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between;
@@ -1814,14 +1793,7 @@ img, video, iframe { max-width:100%; height:auto; }
         <span style="font-size:12px;color:rgba(255,255,255,0.82);">사이드바에서 <strong style="color:#86efac;">초록색 ▶ 항목</strong>은 메인페이지와 실시간 동기화되는 <strong style="color:#fbbf24;">수정 가능한 주요 콘텐츠</strong>입니다. 저장 즉시 메인페이지에 반영됩니다.</span>
       </div>
       <div class="admin-topbar">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <button id="adminHamBtn" onclick="toggleAdminSidebar()" style="display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:0;">
-            <span style="display:block;width:22px;height:2px;background:#1a2e5a;border-radius:2px;"></span>
-            <span style="display:block;width:22px;height:2px;background:#1a2e5a;border-radius:2px;"></span>
-            <span style="display:block;width:22px;height:2px;background:#1a2e5a;border-radius:2px;"></span>
-          </button>
-          <h2 id="adminPageTitle">대시보드</h2>
-        </div>
+        <h2 id="adminPageTitle">대시보드</h2>
         <button class="btn-result dark" style="padding:8px 20px;font-size:13px;background:linear-gradient(135deg,#1a2e5a,#2563eb);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;" onclick="adminGoMain()">
           🌐 메인페이지 보기
         </button>
@@ -1829,7 +1801,6 @@ img, video, iframe { max-width:100%; height:auto; }
       <div class="admin-body" id="adminContent"></div>
     </main>
   </div>
-  <div class="admin-sidebar-overlay" id="adminSidebarOverlay" onclick="toggleAdminSidebar()"></div>
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
@@ -4818,14 +4789,6 @@ function goMain() {
 // ===== ADMIN =====
 function renderAdmin(section) {
   currentAdminSection = section;
-  // 모바일에서 메뉴 선택 시 사이드바 닫기
-  const sidebar = document.getElementById('adminSidebar');
-  const overlay = document.getElementById('adminSidebarOverlay');
-  if(sidebar && sidebar.classList.contains('mob-open')) {
-    sidebar.classList.remove('mob-open');
-    if(overlay) overlay.classList.remove('active');
-  }
-  checkAdminMobile();
   renderAdminSidebar();
   renderAdminContent(section);
 }
@@ -4879,19 +4842,6 @@ function renderAdminSidebar() {
     return `<div class="admin-menu-item ${m.id===currentAdminSection?'active':''}" onclick="renderAdmin('${m.id}')">${pLabel}</div>`;
   }).join('');
 }
-
-function toggleAdminSidebar() {
-  const sidebar = document.getElementById('adminSidebar');
-  const overlay = document.getElementById('adminSidebarOverlay');
-  if(!sidebar) return;
-  sidebar.classList.toggle('mob-open');
-  if(overlay) overlay.classList.toggle('active');
-}
-function checkAdminMobile() {
-  const btn = document.getElementById('adminHamBtn');
-  if(btn) btn.style.display = window.innerWidth <= 768 ? 'flex' : 'none';
-}
-window.addEventListener('resize', checkAdminMobile);
 
 function toggleAdminMenu(id, el) {
   el.classList.toggle('open');
