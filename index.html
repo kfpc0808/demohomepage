@@ -2802,6 +2802,16 @@ function _makeDraggable(el, handle) {
     document.onmousemove=function(ev){ if(!dragging)return; el.style.left=(ox+ev.clientX-mx)+'px'; el.style.top=(oy+ev.clientY-my)+'px'; };
     document.onmouseup=function(){ dragging=false; document.onmousemove=null; document.onmouseup=null; };
   };
+  handle.ontouchstart=function(e){
+    if(e.target.tagName==='BUTTON') return;
+    var t=e.touches[0]; dragging=true; mx=t.clientX; my=t.clientY;
+    var r=el.getBoundingClientRect(); ox=r.left; oy=r.top; el.style.transform='none';
+  };
+  handle.ontouchmove=function(e){
+    if(!dragging)return; e.preventDefault(); var t=e.touches[0];
+    el.style.left=(ox+t.clientX-mx)+'px'; el.style.top=(oy+t.clientY-my)+'px';
+  };
+  handle.ontouchend=function(){ dragging=false; };
 }
 function showTimestampProcess() {
   closeInfoPopup();
